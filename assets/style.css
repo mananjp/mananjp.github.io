@@ -26,29 +26,75 @@ body {
   overflow-x: hidden;
   cursor: none;
 }
+
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -3;
+}
+
+body::before {
+  background:
+    radial-gradient(circle at 18% 20%, rgba(201,169,110,0.18), transparent 28%),
+    radial-gradient(circle at 82% 78%, rgba(78,205,196,0.10), transparent 24%),
+    radial-gradient(circle at 50% 50%, rgba(255,255,255,0.02), transparent 55%),
+    linear-gradient(180deg, #0a0a0a 0%, #080808 45%, #0b0b0b 100%);
+  filter: blur(8px) saturate(110%);
+  transform: scale(1.04);
+}
+
+body::after {
+  background-image:
+    linear-gradient(rgba(201,169,110,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(201,169,110,0.025) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(circle at center, black 35%, transparent 90%);
+  opacity: 0.35;
+}
+
 ::-webkit-scrollbar { width: 3px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
 ::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 2px; }
 
 /* CURSOR */
-#cursor {
-  position: fixed; top: 0; left: 0; z-index: 9999;
-  width: 10px; height: 10px;
-  background: var(--gold);
-  border-radius: 50%;
+#cursor-dot,
+#cursor-ring,
+#cursor-glow {
+  position: fixed;
+  top: 0;
+  left: 0;
   pointer-events: none;
-  transform: translate(-50%,-50%);
-  transition: transform 0.08s, width 0.2s, height 0.2s;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9999;
+}
+
+#cursor-dot {
+  width: 8px;
+  height: 8px;
+  background: #c9a96e;
   mix-blend-mode: difference;
 }
-#cursor-trail {
-  position: fixed; top: 0; left: 0; z-index: 9998;
-  width: 32px; height: 32px;
-  border: 1px solid rgba(201,169,110,0.3);
-  border-radius: 50%;
-  pointer-events: none;
-  transform: translate(-50%,-50%);
-  transition: transform 0.18s var(--trans), opacity 0.2s;
+
+#cursor-ring {
+  width: 34px;
+  height: 34px;
+  border: 1px solid rgba(201,169,110,0.38);
+  transition: width 180ms cubic-bezier(0.16, 1, 0.3, 1),
+              height 180ms cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 180ms cubic-bezier(0.16, 1, 0.3, 1),
+              background 180ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+#cursor-glow {
+  width: 140px;
+  height: 140px;
+  background: radial-gradient(circle, rgba(201,169,110,0.11) 0%, rgba(201,169,110,0.04) 35%, transparent 72%);
+  filter: blur(18px);
+  opacity: 0.9;
 }
 
 /* PRELOADER */
@@ -264,9 +310,9 @@ section { padding: 7rem 2rem; }
 .section-title em { font-style: italic; color: var(--gold); }
 
 /* ABOUT */
-#about { background: var(--bg2); }
-#experience { background: var(--bg); }
-#projects { background: var(--bg2); }
+#about { background: transparent; }
+#experience { background: transparent; }
+#projects { background: transparent; }
 .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: start; }
 .about-body { color: rgba(240,236,228,0.58); margin-bottom: 1.4rem; font-size: 0.97rem; line-height: 1.9; }
 .about-stats { display: flex; gap: 2.5rem; margin-top: 3rem; padding-top: 3rem; border-top: 1px solid var(--border); flex-wrap: wrap; }
@@ -369,14 +415,14 @@ section { padding: 7rem 2rem; }
 .btn-gh:hover { border-color: var(--gold); color: var(--gold); }
 
 /* STATS */
-#stats { background: var(--bg); padding: 4rem 2rem; }
+#stats { background: transparent; padding: 4rem 2rem; }
 .stats-band { display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center; align-items: center; }
 .gh-stat-img { border-radius: var(--radius); border: 1px solid var(--border); max-width: 100%; height: auto; display: block; }
 .stats-item--wide { flex: 1; min-width: 280px; }
 .gh-contrib-img   { width: 100%; max-width: 720px; filter: brightness(0.95) contrast(1.05); }
 
 /* CONTACT */
-#contact { background: var(--bg2); }
+#contact { background: transparent; }
 .contact-inner { max-width: 720px; }
 .contact-sub { color: rgba(240,236,228,0.48); font-size: 0.97rem; margin-bottom: 3rem; line-height: 1.9; }
 .contact-links { display: flex; flex-wrap: wrap; gap: 0.9rem; }

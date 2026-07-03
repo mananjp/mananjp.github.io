@@ -10,25 +10,61 @@ window.addEventListener('load', () => {
 });
 
 // CURSOR
-const cursor = document.getElementById('cursor');
-const trail  = document.getElementById('cursor-trail');
-let mx = 0, my = 0, tx = 0, ty = 0;
-document.addEventListener('mousemove', e => {
-  mx = e.clientX; my = e.clientY;
-  cursor.style.left = mx + 'px';
-  cursor.style.top  = my + 'px';
+const dot = document.getElementById("cursor-dot");
+const ring = document.getElementById("cursor-ring");
+const glow = document.getElementById("cursor-glow");
+
+let mouseX = 0, mouseY = 0;
+let ringX = 0, ringY = 0;
+let glowX = 0, glowY = 0;
+
+window.addEventListener("mousemove", (e) => {
+  mouseX = e.clientX;
+  mouseY = e.clientY;
+  if (dot) {
+    dot.style.left = `${mouseX}px`;
+    dot.style.top = `${mouseY}px`;
+  }
 });
-(function animateTrail() {
-  tx += (mx - tx) * 0.12;
-  ty += (my - ty) * 0.12;
-  trail.style.left = tx + 'px';
-  trail.style.top  = ty + 'px';
-  requestAnimationFrame(animateTrail);
-})();
-document.querySelectorAll('a, button').forEach(el => {
-  el.addEventListener('mouseenter', () => { cursor.style.transform = 'translate(-50%,-50%) scale(2.4)'; trail.style.opacity = '0'; });
-  el.addEventListener('mouseleave', () => { cursor.style.transform = 'translate(-50%,-50%) scale(1)';   trail.style.opacity = '1'; });
+
+function animateCursor() {
+  ringX += (mouseX - ringX) * 0.18;
+  ringY += (mouseY - ringY) * 0.18;
+
+  glowX += (mouseX - glowX) * 0.08;
+  glowY += (mouseY - glowY) * 0.08;
+
+  if (ring) {
+    ring.style.left = `${ringX}px`;
+    ring.style.top = `${ringY}px`;
+  }
+  if (glow) {
+    glow.style.left = `${glowX}px`;
+    glow.style.top = `${glowY}px`;
+  }
+
+  requestAnimationFrame(animateCursor);
+}
+animateCursor();
+
+document.querySelectorAll("a, button, .project-card").forEach((el) => {
+  el.addEventListener("mouseenter", () => {
+    if (ring) {
+      ring.style.width = "54px";
+      ring.style.height = "54px";
+      ring.style.borderColor = "rgba(201,169,110,0.7)";
+    }
+  });
+
+  el.addEventListener("mouseleave", () => {
+    if (ring) {
+      ring.style.width = "34px";
+      ring.style.height = "34px";
+      ring.style.borderColor = "rgba(201,169,110,0.38)";
+    }
+  });
 });
+
 
 // NAV SCROLL + PROGRESS
 const nav      = document.getElementById('nav');

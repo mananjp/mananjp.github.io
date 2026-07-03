@@ -76,27 +76,6 @@ window.addEventListener('scroll', () => {
   progress.style.width = pct + '%';
   // hide scroll indicator once user starts scrolling
   if (scrollEl) scrollEl.style.opacity = window.scrollY > 80 ? '0' : '1';
-
-  // SCROLL-PARALLAX DEPTH LAYERS
-  const scrolled = window.scrollY;
-  
-  document.querySelectorAll(".section-title").forEach(el => {
-    const depth = 0.05;
-    const translate = scrolled * depth;
-    el.style.transform = `translateY(${translate}px)`;
-  });
-
-  document.querySelectorAll(".project-card .card-inner").forEach((el, index) => {
-    const depth = index % 2 === 0 ? 0.03 : 0.05;
-    const translate = scrolled * depth;
-    el.style.transform = `translateY(${translate}px)`;
-  });
-
-  document.querySelectorAll(".stat").forEach((el, index) => {
-    const depth = (index + 1) * 0.03;
-    const translate = scrolled * depth;
-    el.style.transform = `translateY(${translate}px)`;
-  });
 });
 
 // REVEAL ON SCROLL

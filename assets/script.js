@@ -122,3 +122,101 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
     if (t) { e.preventDefault(); t.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
   });
 });
+
+// NEURAL ODE TRAJECTORY CANVAS
+class TrajectoryParticle {
+  constructor(w, h) {
+    this.reset(w, h);
+  }
+  reset(w, h) {
+    this.x = Math.random() * w;
+    this.y = Math.random() * h;
+    this.history = [];
+    this.speed = Math.random() * 0.6 + 0.35;
+    this.life = Math.random() * 150 + 100;
+    this.maxLife = this.life;
+    this.color = Math.random() > 0.55 ? '201, 169, 110' : '78, 205, 196'; // Gold or Teal
+  }
+  update(w, h, mouseX, mouseY) {
+    this.history.push({ x: this.x, y: this.y });
+    if (this.history.length > 15) {
+      this.history.shift();
+    }
+
+    // Mathematical flow field (Neural ODE simulation style)
+    let frequency = 0.0035;
+    let angle = (Math.sin(this.y * frequency) + Math.cos(this.x * frequency)) * Math.PI * 1.5;
+
+    let vx = Math.cos(angle) * this.speed;
+    let vy = Math.sin(angle) * this.speed;
+
+    // Mouse interaction - dynamic flow bend
+    if (mouseX !== undefined && mouseY !== undefined) {
+      let dx = mouseX - this.x;
+      let dy = mouseY - this.y;
+      let dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < 220) {
+        let force = (220 - dist) / 220;
+        // Pull particles slightly towards cursor
+        vx += (dx / dist) * force * 0.5;
+        vy += (dy / dist) * force * 0.5;
+      }
+    }
+
+    this.x += vx;
+    this.y += vy;
+    this.life--;
+
+    if (this.life <= 0 || this.x < 0 || this.x > w || this.y < 0 || this.y > h) {
+      this.reset(w, h);
+    }
+  }
+  draw(ctx) {
+    if (this.history.length < 2) return;
+
+    ctx.beginPath();
+    ctx.moveTo(this.history[0].x, this.history[0].y);
+    for (let i = 1; i < this.history.length; i++) {
+      ctx.lineTo(this.history[i].x, this.history[i].y);
+    }
+    
+    let alpha = Math.sin((this.life / this.maxLife) * Math.PI) * 0.35;
+    ctx.strokeStyle = `rgba(${this.color}, ${alpha})`;
+    ctx.lineWidth = 0.75;
+    ctx.stroke();
+  }
+}
+
+const trajectoryCanvas = document.getElementById('trajectory-canvas');
+if (trajectoryCanvas) {
+  const ctx = trajectoryCanvas.getContext('2d');
+  let w = trajectoryCanvas.offsetWidth;
+  let h = trajectoryCanvas.offsetHeight;
+  trajectoryCanvas.width = w;
+  trajectoryCanvas.height = h;
+
+  let particles = [];
+  const particleCount = 80;
+
+  for (let i = 0; i < particleCount; i++) {
+    particles.push(new TrajectoryParticle(w, h));
+  }
+
+  window.addEventListener('resize', () => {
+    w = trajectoryCanvas.offsetWidth;
+    h = trajectoryCanvas.offsetHeight;
+    trajectoryCanvas.width = w;
+    trajectoryCanvas.height = h;
+  });
+
+  function renderTrajectories() {
+    ctx.clearRect(0, 0, w, h);
+    particles.forEach(p => {
+      // mouseX and mouseY are globally accessible from cursor script
+      p.update(w, h, typeof mouseX !== 'undefined' ? mouseX : undefined, typeof mouseY !== 'undefined' ? mouseY : undefined);
+      p.draw(ctx);
+    });
+    requestAnimationFrame(renderTrajectories);
+  }
+  renderTrajectories();
+}

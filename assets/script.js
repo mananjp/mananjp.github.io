@@ -76,6 +76,27 @@ window.addEventListener('scroll', () => {
   progress.style.width = pct + '%';
   // hide scroll indicator once user starts scrolling
   if (scrollEl) scrollEl.style.opacity = window.scrollY > 80 ? '0' : '1';
+
+  // SCROLL-PARALLAX DEPTH LAYERS
+  const scrolled = window.scrollY;
+  
+  document.querySelectorAll(".section-title").forEach(el => {
+    const depth = 0.05;
+    const translate = scrolled * depth;
+    el.style.transform = `translateY(${translate}px)`;
+  });
+
+  document.querySelectorAll(".project-card .card-inner").forEach((el, index) => {
+    const depth = index % 2 === 0 ? 0.03 : 0.05;
+    const translate = scrolled * depth;
+    el.style.transform = `translateY(${translate}px)`;
+  });
+
+  document.querySelectorAll(".stat").forEach((el, index) => {
+    const depth = (index + 1) * 0.03;
+    const translate = scrolled * depth;
+    el.style.transform = `translateY(${translate}px)`;
+  });
 });
 
 // REVEAL ON SCROLL
@@ -220,3 +241,59 @@ if (trajectoryCanvas) {
   }
   renderTrajectories();
 }
+
+// MAGNETIC NAV LINKS
+document.querySelectorAll("#nav a, #nav .nav-logo, #nav .nav-icon-link").forEach(el => {
+  el.addEventListener("mousemove", e => {
+    const bound = el.getBoundingClientRect();
+    const x = e.clientX - bound.left - bound.width / 2;
+    const y = e.clientY - bound.top - bound.height / 2;
+    el.style.transform = `translate(${x * 0.35}px, ${y * 0.35}px)`;
+  });
+  el.addEventListener("mouseleave", () => {
+    el.style.transform = "translate(0px, 0px)";
+  });
+});
+
+// TYPEWRITER HERO ROTATION
+const typewriterTarget = document.getElementById("typewriter-text");
+if (typewriterTarget) {
+  const phrases = [
+    "healthcare AI, language models, and full-stack engineering.",
+    "neural governance and cryptographic provenance.",
+    "neuro-AI and brain-response modelling.",
+    "clinical-grade diagnostics and medical accuracy."
+  ];
+  let phraseIndex = 0;
+  let charIndex = 0;
+  let isDeleting = false;
+  let typingSpeed = 70;
+
+  function type() {
+    const currentPhrase = phrases[phraseIndex];
+    if (isDeleting) {
+      typewriterTarget.textContent = currentPhrase.substring(0, charIndex - 1);
+      charIndex--;
+      typingSpeed = 30;
+    } else {
+      typewriterTarget.textContent = currentPhrase.substring(0, charIndex + 1);
+      charIndex++;
+      typingSpeed = 80;
+    }
+
+    if (!isDeleting && charIndex === currentPhrase.length) {
+      isDeleting = true;
+      typingSpeed = 2200; // Pause at end of text
+    } else if (isDeleting && charIndex === 0) {
+      isDeleting = false;
+      phraseIndex = (phraseIndex + 1) % phrases.length;
+      typingSpeed = 400; // Pause before next word
+    }
+
+    setTimeout(type, typingSpeed);
+  }
+  
+  // Start typewriter after a short delay on DOM ready
+  setTimeout(type, 1200);
+}
+

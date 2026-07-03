@@ -9,7 +9,7 @@ window.addEventListener('load', () => {
   }, 1100);
 });
 
-// CURSOR
+// CURSOR — morphing diamond with particle trail
 const dot = document.getElementById("cursor-dot");
 const ring = document.getElementById("cursor-ring");
 const glow = document.getElementById("cursor-glow");
@@ -18,6 +18,73 @@ let mouseX = 0, mouseY = 0;
 let ringX = 0, ringY = 0;
 let glowX = 0, glowY = 0;
 
+// Particle trail system
+const trailCanvas = document.getElementById("cursor-trail-canvas");
+let trailCtx = null;
+const trailParticles = [];
+
+if (trailCanvas) {
+  trailCtx = trailCanvas.getContext("2d");
+  trailCanvas.width = window.innerWidth;
+  trailCanvas.height = window.innerHeight;
+  window.addEventListener("resize", () => {
+    trailCanvas.width = window.innerWidth;
+    trailCanvas.height = window.innerHeight;
+  });
+}
+
+class TrailParticle {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+    this.size = Math.random() * 3 + 1.5;
+    this.life = 1.0;
+    this.decay = Math.random() * 0.025 + 0.015;
+    this.vx = (Math.random() - 0.5) * 0.6;
+    this.vy = (Math.random() - 0.5) * 0.6;
+    this.rotation = Math.random() * Math.PI;
+    this.rotationSpeed = (Math.random() - 0.5) * 0.08;
+    this.isGold = Math.random() > 0.3;
+  }
+  update() {
+    this.x += this.vx;
+    this.y += this.vy;
+    this.life -= this.decay;
+    this.rotation += this.rotationSpeed;
+    this.size *= 0.995;
+  }
+  draw(ctx) {
+    if (this.life <= 0) return;
+    ctx.save();
+    ctx.translate(this.x, this.y);
+    ctx.rotate(this.rotation);
+    ctx.globalAlpha = this.life * 0.5;
+    
+    const color = this.isGold 
+      ? `rgba(201, 169, 110, ${this.life * 0.6})`
+      : `rgba(78, 205, 196, ${this.life * 0.4})`;
+    
+    ctx.fillStyle = color;
+    ctx.shadowColor = color;
+    ctx.shadowBlur = 4;
+    
+    // Diamond shape
+    const s = this.size;
+    ctx.beginPath();
+    ctx.moveTo(0, -s);
+    ctx.lineTo(s * 0.6, 0);
+    ctx.lineTo(0, s);
+    ctx.lineTo(-s * 0.6, 0);
+    ctx.closePath();
+    ctx.fill();
+    
+    ctx.restore();
+  }
+}
+
+let lastTrailX = 0, lastTrailY = 0;
+let trailThrottle = 0;
+
 window.addEventListener("mousemove", (e) => {
   mouseX = e.clientX;
   mouseY = e.clientY;
@@ -25,14 +92,30 @@ window.addEventListener("mousemove", (e) => {
     dot.style.left = `${mouseX}px`;
     dot.style.top = `${mouseY}px`;
   }
+  
+  // Spawn trail particles based on movement distance
+  if (trailCtx) {
+    const dx = mouseX - lastTrailX;
+    const dy = mouseY - lastTrailY;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    trailThrottle++;
+    
+    if (dist > 4 && trailThrottle % 2 === 0) {
+      trailParticles.push(new TrailParticle(mouseX, mouseY));
+      lastTrailX = mouseX;
+      lastTrailY = mouseY;
+    }
+    // Keep particle count sane
+    while (trailParticles.length > 60) trailParticles.shift();
+  }
 });
 
 function animateCursor() {
-  ringX += (mouseX - ringX) * 0.18;
-  ringY += (mouseY - ringY) * 0.18;
+  ringX += (mouseX - ringX) * 0.16;
+  ringY += (mouseY - ringY) * 0.16;
 
-  glowX += (mouseX - glowX) * 0.08;
-  glowY += (mouseY - glowY) * 0.08;
+  glowX += (mouseX - glowX) * 0.07;
+  glowY += (mouseY - glowY) * 0.07;
 
   if (ring) {
     ring.style.left = `${ringX}px`;
@@ -42,26 +125,32 @@ function animateCursor() {
     glow.style.left = `${glowX}px`;
     glow.style.top = `${glowY}px`;
   }
+  
+  // Render trail particles
+  if (trailCtx && trailCanvas) {
+    trailCtx.clearRect(0, 0, trailCanvas.width, trailCanvas.height);
+    for (let i = trailParticles.length - 1; i >= 0; i--) {
+      trailParticles[i].update();
+      trailParticles[i].draw(trailCtx);
+      if (trailParticles[i].life <= 0) {
+        trailParticles.splice(i, 1);
+      }
+    }
+  }
 
   requestAnimationFrame(animateCursor);
 }
 animateCursor();
 
-document.querySelectorAll("a, button, .project-card").forEach((el) => {
+// Hover state — use CSS class toggling for richer animation
+document.querySelectorAll("a, button, .project-card, .filter-btn, .contact-pill, .skill-tags span").forEach((el) => {
   el.addEventListener("mouseenter", () => {
-    if (ring) {
-      ring.style.width = "54px";
-      ring.style.height = "54px";
-      ring.style.borderColor = "rgba(201,169,110,0.7)";
-    }
+    if (ring) ring.classList.add("cursor-hover");
+    if (dot) dot.classList.add("cursor-hover");
   });
-
   el.addEventListener("mouseleave", () => {
-    if (ring) {
-      ring.style.width = "34px";
-      ring.style.height = "34px";
-      ring.style.borderColor = "rgba(201,169,110,0.38)";
-    }
+    if (ring) ring.classList.remove("cursor-hover");
+    if (dot) dot.classList.remove("cursor-hover");
   });
 });
 

@@ -142,16 +142,19 @@ body::after {
   color: var(--white);
   margin-right: auto;
   white-space: nowrap;
+  display: inline-block;
+  transition: transform 0.25s cubic-bezier(0.25, 1, 0.5, 1);
 }
 .nav-logo span { color: var(--gold); }
 .nav-links { list-style: none; display: flex; gap: 2.5rem; }
 .nav-links a {
+  display: inline-block;
   text-decoration: none;
   color: var(--muted);
   font-size: 0.75rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  transition: color 0.2s;
+  transition: color 0.2s, transform 0.25s cubic-bezier(0.25, 1, 0.5, 1);
 }
 .nav-links a:hover { color: var(--gold); }
 .nav-social { display: flex; align-items: center; gap: 0.6rem; }
@@ -162,13 +165,24 @@ body::after {
   border: 1px solid var(--border);
   border-radius: 8px;
   text-decoration: none;
-  transition: color 0.2s, border-color 0.2s, background 0.2s;
+  transition: color 0.2s, border-color 0.2s, background 0.2s, transform 0.25s cubic-bezier(0.25, 1, 0.5, 1);
 }
 .nav-icon-link:hover { color: var(--gold); border-color: rgba(201,169,110,0.4); background: rgba(201,169,110,0.06); }
 .nav-progress {
   position: absolute; bottom: -1px; left: 0;
   height: 1px; background: var(--gold);
   width: 0; transition: width 0.1s linear;
+}
+
+.typewriter-cursor {
+  font-weight: 300;
+  color: var(--gold);
+  animation: typewriter-blink 1s step-end infinite;
+  margin-left: 2px;
+}
+@keyframes typewriter-blink {
+  from, to { opacity: 0; }
+  50% { opacity: 1; }
 }
 
 /* HERO */

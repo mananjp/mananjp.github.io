@@ -1,5 +1,5 @@
-
 // PRELOADER
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 document.body.style.overflow = 'hidden';
 window.addEventListener('load', () => {
   setTimeout(() => {
@@ -88,6 +88,7 @@ let trailThrottle = 0;
 window.addEventListener("mousemove", (e) => {
   mouseX = e.clientX;
   mouseY = e.clientY;
+  if (prefersReducedMotion) return;
   if (dot) {
     dot.style.left = `${mouseX}px`;
     dot.style.top = `${mouseY}px`;
@@ -111,6 +112,7 @@ window.addEventListener("mousemove", (e) => {
 });
 
 function animateCursor() {
+  if (prefersReducedMotion) return;
   ringX += (mouseX - ringX) * 0.16;
   ringY += (mouseY - ringY) * 0.16;
 
@@ -196,6 +198,7 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
 // CARD 3D TILT
 document.querySelectorAll('.project-card').forEach(card => {
   card.addEventListener('mousemove', e => {
+    if (prefersReducedMotion) return;
     const r  = card.getBoundingClientRect();
     const cx = (e.clientX - r.left) / r.width  - 0.5;
     const cy = (e.clientY - r.top)  / r.height - 0.5;
@@ -299,6 +302,7 @@ if (trajectoryCanvas) {
   });
 
   function renderTrajectories() {
+    if (prefersReducedMotion) return;
     ctx.clearRect(0, 0, w, h);
     particles.forEach(p => {
       // mouseX and mouseY are globally accessible from cursor script
@@ -313,6 +317,7 @@ if (trajectoryCanvas) {
 // MAGNETIC NAV LINKS
 document.querySelectorAll("#nav a, #nav .nav-logo, #nav .nav-icon-link").forEach(el => {
   el.addEventListener("mousemove", e => {
+    if (prefersReducedMotion) return;
     const bound = el.getBoundingClientRect();
     const x = e.clientX - bound.left - bound.width / 2;
     const y = e.clientY - bound.top - bound.height / 2;
@@ -362,6 +367,10 @@ if (typewriterTarget) {
   }
   
   // Start typewriter after a short delay on DOM ready
-  setTimeout(type, 1200);
+  if (prefersReducedMotion) {
+    typewriterTarget.textContent = phrases[0];
+  } else {
+    setTimeout(type, 1200);
+  }
 }
 

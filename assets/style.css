@@ -1360,6 +1360,14 @@ section.tight {
   gap: 0.4rem;
 }
 
+.form-group--hidden {
+  position: absolute;
+  left: -9999px;
+  opacity: 0;
+  height: 0;
+  overflow: hidden;
+}
+
 .form-label {
   font-family: var(--f-mono);
   font-size: 0.65rem;
@@ -1452,6 +1460,10 @@ section.tight {
   font-size: 0.7rem;
   color: var(--teal);
   min-height: 1.2em;
+}
+
+.form-status.error {
+  color: #e2716c;
 }
 
 /* ============================================================

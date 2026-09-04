@@ -1,188 +1,114 @@
-// PRELOADER
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const isMobile = window.innerWidth < 768;
+
+/* ============================================================
+   PRELOADER
+   ============================================================ */
 document.body.style.overflow = 'hidden';
 window.addEventListener('load', () => {
   setTimeout(() => {
-    document.getElementById('preloader').classList.add('hidden');
+    const pre = document.getElementById('preloader');
+    if (pre) pre.classList.add('hidden');
     document.body.style.overflow = '';
-    initReveal();
-  }, 1100);
+    initGsapAnimations();
+  }, prefersReducedMotion ? 0 : 1200);
 });
 
-// CURSOR — morphing diamond with particle trail
-const dot = document.getElementById("cursor-dot");
-const ring = document.getElementById("cursor-ring");
-const glow = document.getElementById("cursor-glow");
+/* ============================================================
+   CUSTOM CURSOR
+   ============================================================ */
+const dot = document.getElementById('cursor-dot');
+const ring = document.getElementById('cursor-ring');
+let mouseX = 0, mouseY = 0, ringX = 0, ringY = 0;
 
-let mouseX = 0, mouseY = 0;
-let ringX = 0, ringY = 0;
-let glowX = 0, glowY = 0;
-
-// Particle trail system
-const trailCanvas = document.getElementById("cursor-trail-canvas");
-let trailCtx = null;
-const trailParticles = [];
-
-if (trailCanvas) {
-  trailCtx = trailCanvas.getContext("2d");
-  trailCanvas.width = window.innerWidth;
-  trailCanvas.height = window.innerHeight;
-  window.addEventListener("resize", () => {
-    trailCanvas.width = window.innerWidth;
-    trailCanvas.height = window.innerHeight;
-  });
-}
-
-class TrailParticle {
-  constructor(x, y) {
-    this.x = x;
-    this.y = y;
-    this.size = Math.random() * 3 + 1.5;
-    this.life = 1.0;
-    this.decay = Math.random() * 0.025 + 0.015;
-    this.vx = (Math.random() - 0.5) * 0.6;
-    this.vy = (Math.random() - 0.5) * 0.6;
-    this.rotation = Math.random() * Math.PI;
-    this.rotationSpeed = (Math.random() - 0.5) * 0.08;
-    this.isGold = Math.random() > 0.3;
-  }
-  update() {
-    this.x += this.vx;
-    this.y += this.vy;
-    this.life -= this.decay;
-    this.rotation += this.rotationSpeed;
-    this.size *= 0.995;
-  }
-  draw(ctx) {
-    if (this.life <= 0) return;
-    ctx.save();
-    ctx.translate(this.x, this.y);
-    ctx.rotate(this.rotation);
-    ctx.globalAlpha = this.life * 0.5;
-    
-    const color = this.isGold 
-      ? `rgba(201, 169, 110, ${this.life * 0.6})`
-      : `rgba(78, 205, 196, ${this.life * 0.4})`;
-    
-    ctx.fillStyle = color;
-    ctx.shadowColor = color;
-    ctx.shadowBlur = 4;
-    
-    // Diamond shape
-    const s = this.size;
-    ctx.beginPath();
-    ctx.moveTo(0, -s);
-    ctx.lineTo(s * 0.6, 0);
-    ctx.lineTo(0, s);
-    ctx.lineTo(-s * 0.6, 0);
-    ctx.closePath();
-    ctx.fill();
-    
-    ctx.restore();
-  }
-}
-
-let lastTrailX = 0, lastTrailY = 0;
-let trailThrottle = 0;
-
-window.addEventListener("mousemove", (e) => {
-  mouseX = e.clientX;
-  mouseY = e.clientY;
-  if (prefersReducedMotion) return;
-  if (dot) {
+if (!prefersReducedMotion && dot && ring) {
+  window.addEventListener('mousemove', (e) => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
     dot.style.left = `${mouseX}px`;
     dot.style.top = `${mouseY}px`;
-  }
-  
-  // Spawn trail particles based on movement distance
-  if (trailCtx) {
-    const dx = mouseX - lastTrailX;
-    const dy = mouseY - lastTrailY;
-    const dist = Math.sqrt(dx * dx + dy * dy);
-    trailThrottle++;
-    
-    if (dist > 4 && trailThrottle % 2 === 0) {
-      trailParticles.push(new TrailParticle(mouseX, mouseY));
-      lastTrailX = mouseX;
-      lastTrailY = mouseY;
-    }
-    // Keep particle count sane
-    while (trailParticles.length > 60) trailParticles.shift();
-  }
-});
+  });
 
-function animateCursor() {
-  if (prefersReducedMotion) return;
-  ringX += (mouseX - ringX) * 0.16;
-  ringY += (mouseY - ringY) * 0.16;
-
-  glowX += (mouseX - glowX) * 0.07;
-  glowY += (mouseY - glowY) * 0.07;
-
-  if (ring) {
+  function animateCursor() {
+    ringX += (mouseX - ringX) * 0.15;
+    ringY += (mouseY - ringY) * 0.15;
     ring.style.left = `${ringX}px`;
     ring.style.top = `${ringY}px`;
+    requestAnimationFrame(animateCursor);
   }
-  if (glow) {
-    glow.style.left = `${glowX}px`;
-    glow.style.top = `${glowY}px`;
-  }
-  
-  // Render trail particles
-  if (trailCtx && trailCanvas) {
-    trailCtx.clearRect(0, 0, trailCanvas.width, trailCanvas.height);
-    for (let i = trailParticles.length - 1; i >= 0; i--) {
-      trailParticles[i].update();
-      trailParticles[i].draw(trailCtx);
-      if (trailParticles[i].life <= 0) {
-        trailParticles.splice(i, 1);
-      }
-    }
-  }
+  animateCursor();
 
-  requestAnimationFrame(animateCursor);
+  document.querySelectorAll('a, button, .project-card, .filter-btn, .contact-pill, .skill-tags span').forEach((el) => {
+    el.addEventListener('mouseenter', () => ring.classList.add('cursor-hover'));
+    el.addEventListener('mouseleave', () => ring.classList.remove('cursor-hover'));
+  });
 }
-animateCursor();
 
-// Hover state — use CSS class toggling for richer animation
-document.querySelectorAll("a, button, .project-card, .filter-btn, .contact-pill, .skill-tags span").forEach((el) => {
-  el.addEventListener("mouseenter", () => {
-    if (ring) ring.classList.add("cursor-hover");
-    if (dot) dot.classList.add("cursor-hover");
-  });
-  el.addEventListener("mouseleave", () => {
-    if (ring) ring.classList.remove("cursor-hover");
-    if (dot) dot.classList.remove("cursor-hover");
-  });
-});
-
-
-// NAV SCROLL + PROGRESS
-const nav      = document.getElementById('nav');
+/* ============================================================
+   NAV SCROLL + PROGRESS
+   ============================================================ */
+const nav = document.getElementById('nav');
 const progress = document.getElementById('nav-progress');
 const scrollEl = document.getElementById('hero-scroll');
+
 window.addEventListener('scroll', () => {
   nav.classList.toggle('scrolled', window.scrollY > 60);
   const pct = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
   progress.style.width = pct + '%';
-  // hide scroll indicator once user starts scrolling
   if (scrollEl) scrollEl.style.opacity = window.scrollY > 80 ? '0' : '1';
 });
 
-// REVEAL ON SCROLL
-function initReveal() {
-  const obs = new IntersectionObserver((entries) => {
-    entries.forEach((e, i) => {
-      if (e.isIntersecting) {
-        setTimeout(() => e.target.classList.add('visible'), i * 70);
-        obs.unobserve(e.target);
-      }
-    });
-  }, { threshold: 0.1 });
-  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
-}
+/* ============================================================
+   TYPEWRITER EFFECT
+   ============================================================ */
+(function initTypewriter() {
+  const el = document.getElementById('typewriter-text');
+  if (!el) return;
 
-// PROJECT FILTER
+  const phrases = [
+    'healthcare AI & clinical diagnostics',
+    'large language models & RAG systems',
+    'neural ODEs & continuous-depth models',
+    'full-stack systems that ship',
+    'AI governance & agent security'
+  ];
+
+  let phraseIdx = 0;
+  let charIdx = 0;
+  let isDeleting = false;
+
+  function type() {
+    const current = phrases[phraseIdx];
+    let speed;
+
+    if (isDeleting) {
+      el.textContent = current.substring(0, charIdx - 1);
+      charIdx--;
+      speed = 25;
+    } else {
+      el.textContent = current.substring(0, charIdx + 1);
+      charIdx++;
+      speed = 55;
+    }
+
+    if (!isDeleting && charIdx === current.length) {
+      speed = 2200;
+      isDeleting = true;
+    } else if (isDeleting && charIdx === 0) {
+      isDeleting = false;
+      phraseIdx = (phraseIdx + 1) % phrases.length;
+      speed = 400;
+    }
+
+    setTimeout(type, speed);
+  }
+
+  setTimeout(type, 1400);
+})();
+
+/* ============================================================
+   PROJECT FILTER
+   ============================================================ */
 document.querySelectorAll('.filter-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -191,186 +117,360 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
     document.querySelectorAll('.project-card').forEach(card => {
       const show = f === 'all' || card.dataset.category === f;
       card.classList.toggle('hidden', !show);
+      // Ensure shown cards are fully visible (GSAP animation state may vary)
+      if (show) {
+        card.style.opacity = '1';
+        card.style.transform = 'none';
+      }
     });
+    if (typeof ScrollTrigger !== 'undefined') ScrollTrigger.refresh();
   });
 });
 
-// CARD 3D TILT
-document.querySelectorAll('.project-card').forEach(card => {
-  card.addEventListener('mousemove', e => {
-    if (prefersReducedMotion) return;
-    const r  = card.getBoundingClientRect();
-    const cx = (e.clientX - r.left) / r.width  - 0.5;
-    const cy = (e.clientY - r.top)  / r.height - 0.5;
-    card.style.transform = `translateY(-5px) rotateX(${-cy * 7}deg) rotateY(${cx * 7}deg)`;
-  });
-  card.addEventListener('mouseleave', () => { card.style.transform = ''; });
-});
-
-// SMOOTH SCROLL
+/* ============================================================
+   SMOOTH SCROLL
+   ============================================================ */
 document.querySelectorAll('a[href^="#"]').forEach(a => {
   a.addEventListener('click', e => {
     const t = document.querySelector(a.getAttribute('href'));
-    if (t) { e.preventDefault(); t.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+    if (t) {
+      e.preventDefault();
+      t.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   });
 });
 
-// NEURAL ODE TRAJECTORY CANVAS
-class TrajectoryParticle {
-  constructor(w, h) {
-    this.reset(w, h);
-  }
-  reset(w, h) {
-    this.x = Math.random() * w;
-    this.y = Math.random() * h;
-    this.history = [];
-    this.speed = Math.random() * 0.6 + 0.35;
-    this.life = Math.random() * 150 + 100;
-    this.maxLife = this.life;
-    this.color = Math.random() > 0.55 ? '201, 169, 110' : '78, 205, 196'; // Gold or Teal
-  }
-  update(w, h, mouseX, mouseY) {
-    this.history.push({ x: this.x, y: this.y });
-    if (this.history.length > 15) {
-      this.history.shift();
-    }
-
-    // Mathematical flow field (Neural ODE simulation style)
-    let frequency = 0.0035;
-    let angle = (Math.sin(this.y * frequency) + Math.cos(this.x * frequency)) * Math.PI * 1.5;
-
-    let vx = Math.cos(angle) * this.speed;
-    let vy = Math.sin(angle) * this.speed;
-
-    // Mouse interaction - dynamic flow bend
-    if (mouseX !== undefined && mouseY !== undefined) {
-      let dx = mouseX - this.x;
-      let dy = mouseY - this.y;
-      let dist = Math.sqrt(dx * dx + dy * dy);
-      if (dist < 220) {
-        let force = (220 - dist) / 220;
-        // Pull particles slightly towards cursor
-        vx += (dx / dist) * force * 0.5;
-        vy += (dy / dist) * force * 0.5;
-      }
-    }
-
-    this.x += vx;
-    this.y += vy;
-    this.life--;
-
-    if (this.life <= 0 || this.x < 0 || this.x > w || this.y < 0 || this.y > h) {
-      this.reset(w, h);
-    }
-  }
-  draw(ctx) {
-    if (this.history.length < 2) return;
-
-    ctx.beginPath();
-    ctx.moveTo(this.history[0].x, this.history[0].y);
-    for (let i = 1; i < this.history.length; i++) {
-      ctx.lineTo(this.history[i].x, this.history[i].y);
-    }
-    
-    let alpha = Math.sin((this.life / this.maxLife) * Math.PI) * 0.35;
-    ctx.strokeStyle = `rgba(${this.color}, ${alpha})`;
-    ctx.lineWidth = 0.75;
-    ctx.stroke();
-  }
-}
-
-const trajectoryCanvas = document.getElementById('trajectory-canvas');
-if (trajectoryCanvas) {
-  const ctx = trajectoryCanvas.getContext('2d');
-  let w = trajectoryCanvas.offsetWidth;
-  let h = trajectoryCanvas.offsetHeight;
-  trajectoryCanvas.width = w;
-  trajectoryCanvas.height = h;
-
-  let particles = [];
-  const particleCount = 80;
-
-  for (let i = 0; i < particleCount; i++) {
-    particles.push(new TrajectoryParticle(w, h));
+/* ============================================================
+   GSAP SCROLL ANIMATIONS
+   ============================================================ */
+function initGsapAnimations() {
+  if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') {
+    // Fallback: simple reveal so content is never hidden
+    document.querySelectorAll('.reveal').forEach(el => el.classList.add('visible'));
+    return;
   }
 
-  window.addEventListener('resize', () => {
-    w = trajectoryCanvas.offsetWidth;
-    h = trajectoryCanvas.offsetHeight;
-    trajectoryCanvas.width = w;
-    trajectoryCanvas.height = h;
-  });
+  gsap.registerPlugin(ScrollTrigger);
 
-  function renderTrajectories() {
-    if (prefersReducedMotion) return;
-    ctx.clearRect(0, 0, w, h);
-    particles.forEach(p => {
-      // mouseX and mouseY are globally accessible from cursor script
-      p.update(w, h, typeof mouseX !== 'undefined' ? mouseX : undefined, typeof mouseY !== 'undefined' ? mouseY : undefined);
-      p.draw(ctx);
-    });
-    requestAnimationFrame(renderTrajectories);
-  }
-  renderTrajectories();
-}
-
-// MAGNETIC NAV LINKS
-document.querySelectorAll("#nav a, #nav .nav-logo, #nav .nav-icon-link").forEach(el => {
-  el.addEventListener("mousemove", e => {
-    if (prefersReducedMotion) return;
-    const bound = el.getBoundingClientRect();
-    const x = e.clientX - bound.left - bound.width / 2;
-    const y = e.clientY - bound.top - bound.height / 2;
-    el.style.transform = `translate(${x * 0.35}px, ${y * 0.35}px)`;
-  });
-  el.addEventListener("mouseleave", () => {
-    el.style.transform = "translate(0px, 0px)";
-  });
-});
-
-// TYPEWRITER HERO ROTATION
-const typewriterTarget = document.getElementById("typewriter-text");
-if (typewriterTarget) {
-  const phrases = [
-    "healthcare AI, language models, and full-stack engineering.",
-    "neural governance and cryptographic provenance.",
-    "neuro-AI and brain-response modelling.",
-    "clinical-grade diagnostics and medical accuracy."
-  ];
-  let phraseIndex = 0;
-  let charIndex = 0;
-  let isDeleting = false;
-  let typingSpeed = 70;
-
-  function type() {
-    const currentPhrase = phrases[phraseIndex];
-    if (isDeleting) {
-      typewriterTarget.textContent = currentPhrase.substring(0, charIndex - 1);
-      charIndex--;
-      typingSpeed = 30;
-    } else {
-      typewriterTarget.textContent = currentPhrase.substring(0, charIndex + 1);
-      charIndex++;
-      typingSpeed = 80;
-    }
-
-    if (!isDeleting && charIndex === currentPhrase.length) {
-      isDeleting = true;
-      typingSpeed = 2200; // Pause at end of text
-    } else if (isDeleting && charIndex === 0) {
-      isDeleting = false;
-      phraseIndex = (phraseIndex + 1) % phrases.length;
-      typingSpeed = 400; // Pause before next word
-    }
-
-    setTimeout(type, typingSpeed);
-  }
-  
-  // Start typewriter after a short delay on DOM ready
+  // Respect reduced motion: just show everything
   if (prefersReducedMotion) {
-    typewriterTarget.textContent = phrases[0];
-  } else {
-    setTimeout(type, 1200);
+    document.querySelectorAll('.reveal').forEach(el => el.classList.add('visible'));
+    return;
   }
+
+  // Hero content entrance (staggered)
+  const heroReveals = gsap.utils.toArray('#hero .reveal');
+  gsap.fromTo(heroReveals,
+    { y: 30, opacity: 0 },
+    {
+      y: 0, opacity: 1, duration: 0.9, ease: 'power3.out', stagger: 0.09, delay: 0.2
+    }
+  );
+
+  // Section reveals — for elements outside the hero
+  gsap.utils.toArray('.reveal').forEach(el => {
+    if (el.closest('#hero')) return;
+    gsap.fromTo(el,
+      { y: 40, opacity: 0 },
+      {
+        y: 0, opacity: 1, duration: 0.85, ease: 'power3.out',
+        scrollTrigger: { trigger: el, start: 'top 88%' }
+      }
+    );
+  });
+
+  // Project cards staggered reveal
+  gsap.fromTo('.project-card',
+    { y: 50, opacity: 0 },
+    {
+      y: 0, opacity: 1, duration: 0.7, ease: 'power3.out', stagger: 0.07,
+      scrollTrigger: { trigger: '#projects .projects-grid', start: 'top 85%' }
+    }
+  );
+
+  // Parallax hero orbs (subtle scroll depth)
+  gsap.to('.hero-orb-1', {
+    yPercent: 35,
+    ease: 'none',
+    scrollTrigger: { trigger: '#hero', start: 'top top', end: 'bottom top', scrub: true }
+  });
+
+  gsap.to('.hero-orb-2', {
+    yPercent: -20,
+    ease: 'none',
+    scrollTrigger: { trigger: '#hero', start: 'top top', end: 'bottom top', scrub: true }
+  });
+
+  // Section labels slide in
+  gsap.utils.toArray('.section-label').forEach(label => {
+    gsap.fromTo(label,
+      { x: -20, opacity: 0 },
+      {
+        x: 0, opacity: 1, duration: 0.6, ease: 'power3.out',
+        scrollTrigger: { trigger: label, start: 'top 92%' }
+      }
+    );
+  });
+
+  // Timeline items staggered
+  gsap.fromTo('.timeline-item',
+    { x: -30, opacity: 0 },
+    {
+      x: 0, opacity: 1, duration: 0.7, ease: 'power3.out', stagger: 0.12,
+      scrollTrigger: { trigger: '.timeline', start: 'top 85%' }
+    }
+  );
+
+  // Blog cards staggered
+  gsap.fromTo('.blog-card',
+    { y: 40, opacity: 0 },
+    {
+      y: 0, opacity: 1, duration: 0.7, ease: 'power3.out', stagger: 0.1,
+      scrollTrigger: { trigger: '#blog', start: 'top 85%' }
+    }
+  );
+
+  // Refresh ScrollTrigger after images load
+  window.addEventListener('load', () => ScrollTrigger.refresh());
 }
 
+/* ============================================================
+   3D TILT CARDS
+   ============================================================ */
+(function initTiltCards() {
+  if (prefersReducedMotion) return;
+  const cards = document.querySelectorAll('.project-card');
+  if (!cards.length) return;
+
+  cards.forEach(card => {
+    card.addEventListener('mousemove', (e) => {
+      const rect = card.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width;
+      const y = (e.clientY - rect.top) / rect.height;
+      const rotateX = (0.5 - y) * 10;
+      const rotateY = (x - 0.5) * 10;
+      card.style.transform = `perspective(800px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+      card.style.setProperty('--mouse-x', `${x * 100}%`);
+      card.style.setProperty('--mouse-y', `${y * 100}%`);
+    });
+
+    card.addEventListener('mouseleave', () => {
+      card.style.transform = 'perspective(800px) rotateX(0) rotateY(0)';
+    });
+  });
+})();
+
+/* ============================================================
+   MAGNETIC BUTTONS
+   ============================================================ */
+(function initMagnetic() {
+  if (prefersReducedMotion) return;
+  const elements = document.querySelectorAll('.magnetic');
+  if (!elements.length) return;
+
+  elements.forEach(el => {
+    const strength = parseFloat(el.dataset.strength) || 0.4;
+
+    el.addEventListener('mousemove', (e) => {
+      const rect = el.getBoundingClientRect();
+      const relX = e.clientX - rect.left - rect.width / 2;
+      const relY = e.clientY - rect.top - rect.height / 2;
+      const x = relX * strength;
+      const y = relY * strength;
+
+      // Use gsap.to for smooth interpolation if available
+      if (typeof gsap !== 'undefined') {
+        gsap.to(el, { x, y, duration: 0.4, ease: 'power2.out' });
+      } else {
+        el.style.transform = `translate(${x}px, ${y}px)`;
+      }
+    });
+
+    el.addEventListener('mouseleave', () => {
+      if (typeof gsap !== 'undefined') {
+        gsap.to(el, { x: 0, y: 0, duration: 0.6, ease: 'elastic.out(1, 0.4)' });
+      } else {
+        el.style.transform = '';
+      }
+    });
+  });
+})();
+
+/* ============================================================
+   CONTACT FORM (client-side, no backend)
+   ============================================================ */
+(function initContactForm() {
+  const form = document.getElementById('contact-form');
+  if (!form) return;
+
+  const submitBtn = document.getElementById('contact-submit');
+  const status = document.getElementById('form-status');
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
+    if (submitBtn.classList.contains('sent')) return;
+
+    submitBtn.classList.add('sent');
+    submitBtn.disabled = true;
+    if (status) status.textContent = 'Message received — I\'ll get back to you soon.';
+    form.reset();
+    setTimeout(() => {
+      submitBtn.classList.remove('sent');
+      submitBtn.disabled = false;
+      if (status) status.textContent = '';
+    }, 4000);
+  });
+})();
+
+/* ============================================================
+   THREE.JS PARTICLE FIELD (hero)
+   ============================================================ */
+(function initThreeParticles() {
+  const canvas = document.getElementById('particle-canvas');
+  if (!canvas || typeof THREE === 'undefined') return;
+
+  const hero = document.getElementById('hero');
+  let width = hero ? hero.offsetWidth : window.innerWidth;
+  let height = hero ? hero.offsetHeight : window.innerHeight;
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(60, width / height, 0.1, 1000);
+  camera.position.z = 30;
+
+  const renderer = new THREE.WebGLRenderer({
+    canvas,
+    antialias: !isMobile,
+    alpha: true,
+    powerPreference: 'high-performance'
+  });
+  renderer.setPixelRatio(isMobile ? 1 : Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(width, height);
+
+  // --- Particle system ---
+  const particleCount = isMobile ? 80 : 250;
+  const positions = new Float32Array(particleCount * 3);
+
+  // Sphere distribution with slight bias toward center
+  for (let i = 0; i < particleCount; i++) {
+    const r = 8 + Math.random() * 20;
+    const theta = Math.random() * Math.PI * 2;
+    const phi = Math.acos(2 * Math.random() - 1);
+    positions[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+    positions[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta) * 0.7;
+    positions[i * 3 + 2] = r * Math.cos(phi);
+  }
+
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+  // Two materials for dual-color effect
+  const tealMat = new THREE.PointsMaterial({
+    color: 0x4ecdc4,
+    size: 0.22,
+    transparent: true,
+    opacity: 0.65,
+    depthWrite: false
+  });
+
+  const points = new THREE.Points(geometry, tealMat);
+  scene.add(points);
+
+  // Sparse gold accent particles
+  const goldCount = Math.floor(particleCount * 0.12);
+  const goldPositions = new Float32Array(goldCount * 3);
+  for (let i = 0; i < goldCount; i++) {
+    const r = 10 + Math.random() * 18;
+    const theta = Math.random() * Math.PI * 2;
+    const phi = Math.acos(2 * Math.random() - 1);
+    goldPositions[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+    goldPositions[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta) * 0.7;
+    goldPositions[i * 3 + 2] = r * Math.cos(phi);
+  }
+
+  const goldGeometry = new THREE.BufferGeometry();
+  goldGeometry.setAttribute('position', new THREE.BufferAttribute(goldPositions, 3));
+  const goldMat = new THREE.PointsMaterial({
+    color: 0xc9a96e,
+    size: 0.35,
+    transparent: true,
+    opacity: 0.5,
+    depthWrite: false
+  });
+  const goldPoints = new THREE.Points(goldGeometry, goldMat);
+  scene.add(goldPoints);
+
+  // --- Rotation group for subtle motion ---
+  const group = new THREE.Group();
+  group.add(points);
+  group.add(goldPoints);
+  scene.add(group);
+
+  // --- Mouse interaction ---
+  const mouse = { x: 0, y: 0 };
+  let targetRotX = 0, targetRotY = 0, rotX = 0, rotY = 0;
+
+  if (!isMobile && !prefersReducedMotion) {
+    hero.addEventListener('mousemove', (e) => {
+      const rect = hero.getBoundingClientRect();
+      mouse.x = ((e.clientX - rect.left) / rect.width - 0.5) * 2;
+      mouse.y = ((e.clientY - rect.top) / rect.height - 0.5) * 2;
+    });
+    hero.addEventListener('mouseleave', () => { mouse.x = 0; mouse.y = 0; });
+  }
+
+  let animId = null;
+
+  function animate() {
+    if (prefersReducedMotion) return;
+
+    // Smooth rotation toward mouse target
+    targetRotY = mouse.x * 0.35;
+    targetRotX = -mouse.y * 0.25;
+    rotX += (targetRotX - rotX) * 0.04;
+    rotY += (targetRotY - rotY) * 0.04;
+
+    group.rotation.x = rotX;
+    group.rotation.y = rotY;
+
+    // Continuous slow rotation
+    group.rotation.z += 0.0015;
+
+    renderer.render(scene, camera);
+    animId = requestAnimationFrame(animate);
+  }
+
+  // Only animate when hero is visible
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        if (animId === null && !prefersReducedMotion) animate();
+      } else {
+        if (animId !== null) {
+          cancelAnimationFrame(animId);
+          animId = null;
+        }
+      }
+    });
+  }, { threshold: 0.1 });
+  io.observe(hero);
+
+  // Static render for reduced motion
+  if (prefersReducedMotion) {
+    renderer.render(scene, camera);
+  } else {
+    animate();
+  }
+
+  // --- Resize handling ---
+  window.addEventListener('resize', () => {
+    width = hero ? hero.offsetWidth : window.innerWidth;
+    height = hero ? hero.offsetHeight : window.innerHeight;
+    camera.aspect = width / height;
+    camera.updateProjectionMatrix();
+    renderer.setSize(width, height);
+  });
+})();

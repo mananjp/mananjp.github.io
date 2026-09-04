@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Manan Panchal — AI Engineer &amp; System Architect</title>
+  <title>Manan Panchal â€” AI Engineer &amp; System Architect</title>
   
   <meta name="description" content="Portfolio of Manan Panchal, a third-year B.Tech AI &amp; ML student at CHARUSAT and SSIP Grant recipient. Building production-grade ML systems, clinical blood-count diagnostics, neural brain-response visualisers, and Ayurvedic AI assistants." />
   <meta name="keywords" content="Manan Panchal, AI Engineer, Machine Learning Engineer, System Architect, Healthcare AI, RAG Systems, LLM Integration, PyTorch, Neural ODE, CHARUSAT, Gujarat, India, Perplexity AI Campus Ambassador, GDG CHARUSAT" />
@@ -14,7 +14,7 @@
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://mananjp.github.io/" />
-  <meta property="og:title" content="Manan Panchal — AI Engineer &amp; System Architect" />
+  <meta property="og:title" content="Manan Panchal â€” AI Engineer &amp; System Architect" />
   <meta property="og:description" content="Building intelligent systems at the intersection of healthcare AI, language models, and full-stack engineering. Explore projects, research, and technical experience." />
   <meta property="og:image" content="https://mananjp.github.io/assets/og-image.png" />
   <meta property="og:site_name" content="Manan Panchal Portfolio" />
@@ -22,7 +22,7 @@
   <!-- Twitter -->
   <meta property="twitter:card" content="summary_large_image" />
   <meta property="twitter:url" content="https://mananjp.github.io/" />
-  <meta property="twitter:title" content="Manan Panchal — AI Engineer &amp; System Architect" />
+  <meta property="twitter:title" content="Manan Panchal â€” AI Engineer &amp; System Architect" />
   <meta property="twitter:description" content="Building intelligent systems at the intersection of healthcare AI, language models, and full-stack engineering. Explore projects, research, and technical experience." />
   <meta property="twitter:image" content="https://mananjp.github.io/assets/og-image.png" />
 
@@ -34,8 +34,13 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="assets/style.css"/>
+
+  <!-- CDN Libraries -->
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/ScrollTrigger.min.js"></script>
 
   <!-- Structured Data (JSON-LD) -->
   <script type="application/ld+json">
@@ -62,7 +67,8 @@
       #preloader { display: none !important; }
       body { overflow: auto !important; cursor: default !important; }
       .reveal { opacity: 1 !important; transform: none !important; }
-      #cursor-dot, #cursor-ring, #cursor-glow, #cursor-trail-canvas { display: none !important; }
+      .grain-overlay { display: none !important; }
+      #cursor-dot, #cursor-ring { display: none !important; }
     </style>
   </noscript>
 </head>
@@ -80,23 +86,27 @@
   <!-- CURSOR -->
   <div id="cursor-dot"></div>
   <div id="cursor-ring"></div>
-  <div id="cursor-glow"></div>
-  <canvas id="cursor-trail-canvas"></canvas>
+
+  <!-- GRAIN OVERLAY -->
+  <div class="grain-overlay" aria-hidden="true"></div>
 
   <!-- NAV -->
   <nav id="nav">
     <div class="nav-logo">Manan<span>JP</span></div>
+    <div class="nav-status">
+      <span class="status-dot"></span>
+      <span class="status-text">Open to Opportunities</span>
+    </div>
     <ul class="nav-links">
       <li><a href="#about">About</a></li>
       <li><a href="#experience">Experience</a></li>
       <li><a href="#projects">Work</a></li>
+      <li><a href="#blog">Notes</a></li>
       <li><a href="#contact">Contact</a></li>
     </ul>
     <div class="nav-social">
       <a href="https://github.com/mananjp" target="_blank" rel="noopener noreferrer" class="nav-icon-link" title="GitHub"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg></a>
       <a href="https://www.linkedin.com/in/manan-panchal-623516373/" target="_blank" rel="noopener noreferrer" class="nav-icon-link" title="LinkedIn"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
-      <a href="https://www.kaggle.com/mananpanchal18" target="_blank" rel="noopener noreferrer" class="nav-icon-link" title="Kaggle"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.825 23.859c-.022.092-.117.141-.281.141h-3.139c-.187 0-.351-.082-.492-.248l-5.178-6.589-1.448 1.374v5.111c0 .235-.117.352-.351.352H5.505c-.236 0-.354-.117-.354-.352V.353c0-.233.118-.353.354-.353h2.431c.234 0 .351.12.351.353v14.343l6.203-6.272c.165-.165.33-.246.495-.246h3.239c.144 0 .236.06.285.18.046.149.034.255-.036.315l-6.555 6.344 6.836 8.507c.095.104.117.208.07.336z"/></svg></a>
-      <a href="mailto:mananjpanchal11@gmail.com" class="nav-icon-link" title="Email"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg></a>
     </div>
     <div class="nav-progress" id="nav-progress"></div>
   </nav>
@@ -108,10 +118,10 @@
       <div class="hero-orb hero-orb-1"></div>
       <div class="hero-orb hero-orb-2"></div>
       <div class="hero-grid"></div>
-      <canvas id="trajectory-canvas"></canvas>
+      <canvas id="particle-canvas"></canvas>
     </div>
     <div class="hero-content">
-      <p class="hero-eyebrow reveal">AI Engineer · System Architect · Research Enthusiast</p>
+      <p class="hero-eyebrow reveal">AI Engineer Â· System Architect Â· Research Enthusiast</p>
       <h1 class="hero-name reveal">
         <span class="name-line">Manan</span>
         <span class="name-line italic">Panchal</span>
@@ -121,8 +131,8 @@
         <em><span id="typewriter-text"></span><span class="typewriter-cursor">|</span></em>
       </p>
       <div class="hero-cta reveal">
-        <a href="#projects" class="btn-primary">View Work</a>
-        <a href="#contact" class="btn-ghost">Get in Touch</a>
+        <a href="#projects" class="btn-primary magnetic" data-strength="0.4">View Work</a>
+        <a href="#contact" class="btn-ghost magnetic" data-strength="0.4">Get in Touch</a>
       </div>
     </div>
     <!-- scroll indicator OUTSIDE hero-content, fixed at bottom of section -->
@@ -140,7 +150,7 @@
         <div class="about-left reveal">
           <h2 class="section-title">Precision over<br/><em>noise.</em></h2>
           <p class="about-body">
-            I'm Manan Panchal — a third-year B.Tech AI &amp; ML student at CHARUSAT, Gujarat,
+            I'm Manan Panchal â€” a third-year B.Tech AI &amp; ML student at CHARUSAT, Gujarat,
             and an SSIP Grant recipient. I build production-grade ML systems that bridge research 
             and real-world impact: from clinical blood-count diagnostics to neural brain-response 
             visualisers to Ayurvedic AI assistants.
@@ -148,7 +158,7 @@
           <p class="about-body">
             I'm the AI/ML Core at GDG CHARUSAT and Campus Ambassador at Perplexity, 
             where I help students integrate LLM-based tooling into academic workflows. 
-            I'm drawn to hard problems in healthcare, education, and automation — 
+            I'm drawn to hard problems in healthcare, education, and automation â€” 
             places where a good model genuinely changes outcomes.
           </p>
           <p class="about-body">
@@ -207,7 +217,7 @@
       <div class="timeline">
         
         <div class="timeline-item reveal">
-          <div class="timeline-date">May 2026 — Jun 2026</div>
+          <div class="timeline-date">May 2026 â€” Jun 2026</div>
           <div class="timeline-dot"></div>
           <div class="timeline-content">
             <div class="timeline-header">
@@ -228,7 +238,7 @@
         </div>
 
         <div class="timeline-item reveal">
-          <div class="timeline-date">Aug 2025 — Present</div>
+          <div class="timeline-date">Aug 2025 â€” Present</div>
           <div class="timeline-dot"></div>
           <div class="timeline-content">
             <div class="timeline-header">
@@ -245,7 +255,7 @@
         </div>
 
         <div class="timeline-item reveal">
-          <div class="timeline-date">Jan 2026 — Present</div>
+          <div class="timeline-date">Jan 2026 â€” Present</div>
           <div class="timeline-dot"></div>
           <div class="timeline-content">
             <div class="timeline-header">
@@ -282,16 +292,16 @@
       </div>
       <div class="projects-grid" id="projects-grid">
         
-        <div class="project-card" data-category="full-stack" style="animation-delay:0.0s">
+        <div class="project-card" data-category="full-stack">
           <div class="card-inner">
             <div class="card-header">
-              <span class="card-icon">🛡️</span>
-              <span class="card-tag">Full-Stack · Security</span>
+              <span class="card-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>
+              <span class="card-tag">Full-Stack Â· Security</span>
             </div>
             <h3 class="card-title">A2A Firewall</h3>
             <p class="card-desc">An Inter-Agent Governance Mesh intercepting agent communications. Implements rate limiting, schema verification, permissions matrix, and Groq LLM semantic parsing.</p>
             <div class="card-footer">
-              <span class="card-lang">FastAPI · React</span>
+              <span class="card-lang">FastAPI Â· React</span>
               <div class="card-links">
                 <a href="https://a2a-firewall.onrender.com/" target="_blank" rel="noopener noreferrer" class="btn-live">Live Demo</a>
                 <a href="https://github.com/mananjp/a2a-firewall" target="_blank" rel="noopener noreferrer" class="btn-gh" aria-label="GitHub">
@@ -302,16 +312,16 @@
           </div>
         </div>
 
-        <div class="project-card" data-category="full-stack" style="animation-delay:0.06s">
+        <div class="project-card" data-category="full-stack">
           <div class="card-inner">
             <div class="card-header">
-              <span class="card-icon">🔏</span>
-              <span class="card-tag">Full-Stack · AI Governance</span>
+              <span class="card-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+              <span class="card-tag">Full-Stack Â· AI Governance</span>
             </div>
             <h3 class="card-title">SIGIL</h3>
-            <p class="card-desc">Sovereign Inference Governance & Identity Ledger — replaces embedded AI watermarking with an external, cryptographically signed Merkle-tree attestation ledger. Ed25519 signatures, perceptual hashing, and policy canaries.</p>
+            <p class="card-desc">Sovereign Inference Governance & Identity Ledger â€” replaces embedded AI watermarking with an external, cryptographically signed Merkle-tree attestation ledger. Ed25519 signatures, perceptual hashing, and policy canaries.</p>
             <div class="card-footer">
-              <span class="card-lang">FastAPI · Python</span>
+              <span class="card-lang">FastAPI Â· Python</span>
               <div class="card-links">
                 <a href="https://sigil-project-latest.onrender.com/" target="_blank" rel="noopener noreferrer" class="btn-live">Live Demo</a>
                 <a href="https://github.com/mananjp/sigil-project" target="_blank" rel="noopener noreferrer" class="btn-gh" aria-label="GitHub">
@@ -322,11 +332,11 @@
           </div>
         </div>
 
-        <div class="project-card" data-category="full-stack" style="animation-delay:0.12s">
+        <div class="project-card" data-category="full-stack">
           <div class="card-inner">
             <div class="card-header">
-              <span class="card-icon">⚡</span>
-              <span class="card-tag">Full-Stack · AI</span>
+              <span class="card-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span>
+              <span class="card-tag">Full-Stack Â· AI</span>
             </div>
             <h3 class="card-title">ExceptionIQ</h3>
             <p class="card-desc">AI-powered error intelligence platform built in TypeScript. Detects, classifies, and explains runtime exceptions with contextual precision.</p>
@@ -342,14 +352,14 @@
           </div>
         </div>
 
-        <div class="project-card" data-category="neuro-ai" style="animation-delay:0.18s">
+        <div class="project-card" data-category="neuro-ai">
           <div class="card-inner">
             <div class="card-header">
-              <span class="card-icon">🧠</span>
-              <span class="card-tag">Neuro-AI · HuggingFace</span>
+              <span class="card-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M12 14v4"/><path d="M6 16a3 3 0 0 1 0-6"/><path d="M18 16a3 3 0 0 0 0-6"/><circle cx="12" cy="18" r="2"/></svg></span>
+              <span class="card-tag">Neuro-AI Â· HuggingFace</span>
             </div>
             <h3 class="card-title">TribeMind</h3>
-            <p class="card-desc">AI app that maps which brain regions activate in response to image, video, or text stimuli — Meta TRIBE v2 model meets Groq-powered LLM neuroscience reports.</p>
+            <p class="card-desc">AI app that maps which brain regions activate in response to image, video, or text stimuli â€” Meta TRIBE v2 model meets Groq-powered LLM neuroscience reports.</p>
             <div class="card-footer">
               <span class="card-lang">Python</span>
               <div class="card-links">
@@ -362,14 +372,14 @@
           </div>
         </div>
 
-        <div class="project-card" data-category="rag" style="animation-delay:0.24s">
+        <div class="project-card" data-category="rag">
           <div class="card-inner">
             <div class="card-header">
-              <span class="card-icon">🌿</span>
-              <span class="card-tag">LLM · Ayurveda</span>
+              <span class="card-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.9C15.5 4.9 17 3.5 17 3.5s1.5 0 2.8 1.3c1 1 1.3 2.3 1.5 3.5A10 10 0 0 0 11 20z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg></span>
+              <span class="card-tag">LLM Â· Ayurveda</span>
             </div>
             <h3 class="card-title">Charak Vaidya</h3>
-            <p class="card-desc">Conversational AI assistant grounded in Ayurvedic knowledge — LLM-based Q&A over curated Charaka Samhita for context-aware health guidance.</p>
+            <p class="card-desc">Conversational AI assistant grounded in Ayurvedic knowledge â€” LLM-based Q&A over curated Charaka Samhita for context-aware health guidance.</p>
             <div class="card-footer">
               <span class="card-lang">Python</span>
               <div class="card-links">
@@ -382,11 +392,11 @@
           </div>
         </div>
 
-        <div class="project-card" data-category="medical" style="animation-delay:0.30s">
+        <div class="project-card" data-category="medical">
           <div class="card-inner">
             <div class="card-header">
-              <span class="card-icon">🩺</span>
-              <span class="card-tag">Medical AI · ML</span>
+              <span class="card-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span>
+              <span class="card-tag">Medical AI Â· ML</span>
             </div>
             <h3 class="card-title">CBC AI Diagnosis</h3>
             <p class="card-desc">Clinical-grade ML models for disease prediction from Complete Blood Count reports. Preprocessing, feature engineering and evaluation built for medical accuracy.</p>
@@ -402,14 +412,14 @@
           </div>
         </div>
 
-        <div class="project-card" data-category="research" style="animation-delay:0.36s">
+        <div class="project-card" data-category="research">
           <div class="card-inner">
             <div class="card-header">
-              <span class="card-icon">📈</span>
-              <span class="card-tag">Research · Neural ODE</span>
+              <span class="card-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></span>
+              <span class="card-tag">Research Â· Neural ODE</span>
             </div>
-            <h3 class="card-title">Neural ODE — Sepsis</h3>
-            <p class="card-desc">Sepsis progression analysis using Neural Ordinary Differential Equations — continuous-depth models for clinical ICU time-series data.</p>
+            <h3 class="card-title">Neural ODE â€” Sepsis</h3>
+            <p class="card-desc">Sepsis progression analysis using Neural Ordinary Differential Equations â€” continuous-depth models for clinical ICU time-series data.</p>
             <div class="card-footer">
               <span class="card-lang">Jupyter</span>
               <div class="card-links">
@@ -422,13 +432,13 @@
           </div>
         </div>
 
-        <div class="project-card" data-category="full-stack" style="animation-delay:0.42s">
+        <div class="project-card" data-category="full-stack">
           <div class="card-inner">
             <div class="card-header">
-              <span class="card-icon">🎯</span>
-              <span class="card-tag">AI · EdTech</span>
+              <span class="card-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></span>
+              <span class="card-tag">AI Â· EdTech</span>
             </div>
-            <h3 class="card-title">Metis – AI Hiring Platform</h3>
+            <h3 class="card-title">Metis â€“ AI Hiring Platform</h3>
             <p class="card-desc">24-hour hackathon build: resumes parsed and fed to a conversational AI interviewer that generates personalised Q&A, scoring, and an HR leaderboard.</p>
             <div class="card-footer">
               <span class="card-lang">Python</span>
@@ -440,14 +450,14 @@
           </div>
         </div>
 
-        <div class="project-card" data-category="rag" style="animation-delay:0.48s">
+        <div class="project-card" data-category="rag">
           <div class="card-inner">
             <div class="card-header">
-              <span class="card-icon">🔍</span>
-              <span class="card-tag">RAG · LLM</span>
+              <span class="card-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+              <span class="card-tag">RAG Â· LLM</span>
             </div>
             <h3 class="card-title">Clarix</h3>
-            <p class="card-desc">AI-powered document intelligence — upload any document and get instant, accurate answers through a RAG pipeline with semantic search and LLM-grounded responses.</p>
+            <p class="card-desc">AI-powered document intelligence â€” upload any document and get instant, accurate answers through a RAG pipeline with semantic search and LLM-grounded responses.</p>
             <div class="card-footer">
               <span class="card-lang">Python</span>
               <div class="card-links">
@@ -458,14 +468,14 @@
           </div>
         </div>
 
-        <div class="project-card" data-category="full-stack" style="animation-delay:0.54s">
+        <div class="project-card" data-category="full-stack">
           <div class="card-inner">
             <div class="card-header">
-              <span class="card-icon">💻</span>
-              <span class="card-tag">EdTech · Platform</span>
+              <span class="card-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></span>
+              <span class="card-tag">EdTech Â· Platform</span>
             </div>
             <h3 class="card-title">ExamIDE</h3>
-            <p class="card-desc">Online platform to conduct AI-proctored coding exams — built-in IDE, judge, and session management in one interface.</p>
+            <p class="card-desc">Online platform to conduct AI-proctored coding exams â€” built-in IDE, judge, and session management in one interface.</p>
             <div class="card-footer">
               <span class="card-lang">Python</span>
               <div class="card-links">
@@ -478,14 +488,14 @@
           </div>
         </div>
 
-        <div class="project-card" data-category="computer" style="animation-delay:0.60s">
+        <div class="project-card" data-category="computer">
           <div class="card-inner">
             <div class="card-header">
-              <span class="card-icon">🚗</span>
-              <span class="card-tag">Computer Vision · YOLO</span>
+              <span class="card-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="1"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></span>
+              <span class="card-tag">Computer Vision Â· YOLO</span>
             </div>
             <h3 class="card-title">Traffic Counter CV</h3>
-            <p class="card-desc">Real-time computer vision traffic counter using YOLOv8 — vehicle detection, counting, and classification from live video streams.</p>
+            <p class="card-desc">Real-time computer vision traffic counter using YOLOv8 â€” vehicle detection, counting, and classification from live video streams.</p>
             <div class="card-footer">
               <span class="card-lang">Python</span>
               <div class="card-links">
@@ -498,14 +508,14 @@
           </div>
         </div>
 
-        <div class="project-card" data-category="rag" style="animation-delay:0.66s">
+        <div class="project-card" data-category="rag">
           <div class="card-inner">
             <div class="card-header">
-              <span class="card-icon">📚</span>
-              <span class="card-tag">RAG · LLM</span>
+              <span class="card-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span>
+              <span class="card-tag">RAG Â· LLM</span>
             </div>
             <h3 class="card-title">Multimodal RAG System</h3>
-            <p class="card-desc">Production-ready RAG system supporting text, images, code files, and documents — vector embeddings with advanced LLMs for semantic retrieval.</p>
+            <p class="card-desc">Production-ready RAG system supporting text, images, code files, and documents â€” vector embeddings with advanced LLMs for semantic retrieval.</p>
             <div class="card-footer">
               <span class="card-lang">Python</span>
               <div class="card-links">
@@ -518,11 +528,11 @@
           </div>
         </div>
 
-        <div class="project-card" data-category="ml" style="animation-delay:0.72s">
+        <div class="project-card" data-category="ml">
           <div class="card-inner">
             <div class="card-header">
-              <span class="card-icon">🃏</span>
-              <span class="card-tag">ML · Game Theory</span>
+              <span class="card-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="10" height="10" rx="2"/><rect x="12" y="12" width="10" height="10" rx="2"/><path d="M12 5h2l-3 4h4l-5 6"/></svg></span>
+              <span class="card-tag">ML Â· Game Theory</span>
             </div>
             <h3 class="card-title">Poker Hand Predictor</h3>
             <p class="card-desc">ML ensemble model that classifies and predicts poker hand outcomes with high accuracy using advanced feature engineering.</p>
@@ -538,11 +548,11 @@
           </div>
         </div>
 
-        <div class="project-card" data-category="ml" style="animation-delay:0.78s">
+        <div class="project-card" data-category="ml">
           <div class="card-inner">
             <div class="card-header">
-              <span class="card-icon">📊</span>
-              <span class="card-tag">FinTech · LSTM</span>
+              <span class="card-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg></span>
+              <span class="card-tag">FinTech Â· LSTM</span>
             </div>
             <h3 class="card-title">Stock Profit Predictor</h3>
             <p class="card-desc">LSTM-based stock profit forecasting with an interactive JS front-end for real-time portfolio simulation and analysis.</p>
@@ -576,30 +586,134 @@
   </div>
 </section>
 
+  <!-- BLOG / LAB NOTES -->
+  <section id="blog">
+    <div class="container">
+      <div class="section-label reveal">Lab Notes</div>
+      <h2 class="section-title reveal">Thinking in<br/><em>public.</em></h2>
+      <p class="blog-intro reveal">Technical deep-dives, architectural decisions, and lessons from building production AI systems.</p>
+      <div class="blog-grid" id="blog-grid">
+
+        <a href="#" class="blog-card reveal" target="_blank" rel="noopener noreferrer">
+          <div class="blog-card-inner">
+            <div class="blog-meta">
+              <span class="blog-date">Coming Soon</span>
+              <span class="blog-read">8 min read</span>
+            </div>
+            <h3 class="blog-title">Why Neural ODEs Beat RNNs for ICU Time-Series Modelling</h3>
+            <p class="blog-excerpt">Continuous-depth models handle irregular sampling and missing data natively â€” here's how we applied them to sepsis progression and what we learned about clinical deployment.</p>
+            <div class="blog-tags">
+              <span>Neural ODE</span><span>Healthcare AI</span><span>PyTorch</span>
+            </div>
+          </div>
+          <div class="blog-arrow">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+          </div>
+        </a>
+
+        <a href="#" class="blog-card reveal" target="_blank" rel="noopener noreferrer">
+          <div class="blog-card-inner">
+            <div class="blog-meta">
+              <span class="blog-date">Coming Soon</span>
+              <span class="blog-read">12 min read</span>
+            </div>
+            <h3 class="blog-title">Building a Merkle-Tree Attestation Ledger for AI Provenance</h3>
+            <p class="blog-excerpt">SIGIL replaces embedded watermarking with external, cryptographically signed provenance â€” Ed25519 signatures, perceptual hashing, and why this architecture matters for AI governance.</p>
+            <div class="blog-tags">
+              <span>Cryptography</span><span>AI Governance</span><span>FastAPI</span>
+            </div>
+          </div>
+          <div class="blog-arrow">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+          </div>
+        </a>
+
+        <a href="#" class="blog-card reveal" target="_blank" rel="noopener noreferrer">
+          <div class="blog-card-inner">
+            <div class="blog-meta">
+              <span class="blog-date">Coming Soon</span>
+              <span class="blog-read">6 min read</span>
+            </div>
+            <h3 class="blog-title">Designing an Agent Firewall: Rate Limits, Schema Verification, and LLM Semantic Parsing</h3>
+            <p class="blog-excerpt">Multi-agent systems need governance layers. A2A Firewall intercepts agent-to-agent communications with a permissions mesh â€” here's the architecture behind it.</p>
+            <div class="blog-tags">
+              <span>Multi-Agent</span><span>Security</span><span>LLM</span>
+            </div>
+          </div>
+          <div class="blog-arrow">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+          </div>
+        </a>
+
+        <a href="#" class="blog-card reveal" target="_blank" rel="noopener noreferrer">
+          <div class="blog-card-inner">
+            <div class="blog-meta">
+              <span class="blog-date">Coming Soon</span>
+              <span class="blog-read">10 min read</span>
+            </div>
+            <h3 class="blog-title">RAG at Scale: From Single-Doc to Multimodal Production Pipelines</h3>
+            <p class="blog-excerpt">Lessons from evolving Clarix into a full multimodal RAG system â€” chunking strategies, embedding choices, and the retrieval-generation tradeoff in practice.</p>
+            <div class="blog-tags">
+              <span>RAG</span><span>LLM</span><span>Vector Search</span>
+            </div>
+          </div>
+          <div class="blog-arrow">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+          </div>
+        </a>
+
+      </div>
+    </div>
+  </section>
+
   <!-- CONTACT -->
   <section id="contact">
     <div class="container">
       <div class="section-label reveal">Contact</div>
-      <div class="contact-inner reveal">
-        <h2 class="section-title">Let's build something<br/><em>worth building.</em></h2>
-        <p class="contact-sub">Open to research collaborations, interesting products, and conversations worth having. B.Tech AI &amp; ML @ CHARUSAT · Vadodara, Gujarat.</p>
-        <div class="contact-links">
-          <a href="mailto:mananjpanchal11@gmail.com" class="contact-pill">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
-            mananjpanchal11@gmail.com
-          </a>
-          <a href="https://www.linkedin.com/in/manan-panchal-623516373/" target="_blank" rel="noopener noreferrer" class="contact-pill">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
-            LinkedIn
-          </a>
-          <a href="https://github.com/mananjp" target="_blank" rel="noopener noreferrer" class="contact-pill">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
-            GitHub
-          </a>
-          <a href="https://www.kaggle.com/mananpanchal18" target="_blank" rel="noopener noreferrer" class="contact-pill">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.825 23.859c-.022.092-.117.141-.281.141h-3.139c-.187 0-.351-.082-.492-.248l-5.178-6.589-1.448 1.374v5.111c0 .235-.117.352-.351.352H5.505c-.236 0-.354-.117-.354-.352V.353c0-.233.118-.353.354-.353h2.431c.234 0 .351.12.351.353v14.343l6.203-6.272c.165-.165.33-.246.495-.246h3.239c.144 0 .236.06.285.18.046.149.034.255-.036.315l-6.555 6.344 6.836 8.507c.095.104.117.208.07.336z"/></svg>
-            Kaggle
-          </a>
+      <div class="contact-layout reveal">
+        <div class="contact-left">
+          <h2 class="section-title">Let's build something<br/><em>worth building.</em></h2>
+          <p class="contact-sub">Open to research collaborations, interesting products, and conversations worth having. B.Tech AI &amp; ML @ CHARUSAT Â· Vadodara, Gujarat.</p>
+          <div class="contact-links">
+            <a href="mailto:mananjpanchal11@gmail.com" class="contact-pill">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+              mananjpanchal11@gmail.com
+            </a>
+            <a href="https://www.linkedin.com/in/manan-panchal-623516373/" target="_blank" rel="noopener noreferrer" class="contact-pill">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+              LinkedIn
+            </a>
+            <a href="https://github.com/mananjp" target="_blank" rel="noopener noreferrer" class="contact-pill">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+              GitHub
+            </a>
+            <a href="https://www.kaggle.com/mananpanchal18" target="_blank" rel="noopener noreferrer" class="contact-pill">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.825 23.859c-.022.092-.117.141-.281.141h-3.139c-.187 0-.351-.082-.492-.248l-5.178-6.589-1.448 1.374v5.111c0 .235-.117.352-.351.352H5.505c-.236 0-.354-.117-.354-.352V.353c0-.233.118-.353.354-.353h2.431c.234 0 .351.12.351.353v14.343l6.203-6.272c.165-.165.33-.246.495-.246h3.239c.144 0 .236.06.285.18.046.149.034.255-.036.315l-6.555 6.344 6.836 8.507c.095.104.117.208.07.336z"/></svg>
+              Kaggle
+            </a>
+          </div>
+        </div>
+        <div class="contact-right">
+          <form id="contact-form" class="contact-form">
+            <div class="form-group">
+              <label for="contact-name" class="form-label">Name</label>
+              <input type="text" id="contact-name" name="name" class="form-input" placeholder="Your name" required autocomplete="name" />
+            </div>
+            <div class="form-group">
+              <label for="contact-email" class="form-label">Email</label>
+              <input type="email" id="contact-email" name="email" class="form-input" placeholder="you@company.com" required autocomplete="email" />
+            </div>
+            <div class="form-group">
+              <label for="contact-message" class="form-label">Message</label>
+              <textarea id="contact-message" name="message" class="form-input form-textarea" placeholder="Tell me about the project or opportunity..." rows="5" required></textarea>
+            </div>
+            <button type="submit" id="contact-submit" class="btn-submit">
+              <span class="btn-submit-text">Send Message</span>
+              <svg class="btn-submit-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+              <svg class="btn-submit-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </button>
+            <p id="form-status" class="form-status"></p>
+          </form>
         </div>
       </div>
     </div>
@@ -608,7 +722,7 @@
 
   <footer>
     <div class="footer-inner">
-      <span class="footer-mono">© 2026 Manan Panchal</span>
+      <span class="footer-mono">Â© 2026 Manan Panchal</span>
       <div class="footer-socials">
         <a href="https://github.com/mananjp" target="_blank" rel="noopener noreferrer" class="footer-link"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg></a>
         <a href="https://www.linkedin.com/in/manan-panchal-623516373/" target="_blank" rel="noopener noreferrer" class="footer-link"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
@@ -618,6 +732,6 @@
     </div>
   </footer>
 
-  <script src="assets/script.js"></script>
+  <script defer src="assets/script.js"></script>
 </body>
 </html>

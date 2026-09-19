@@ -1261,6 +1261,19 @@ section.tight {
   color: var(--gold);
 }
 
+.blog-platform {
+  font-family: var(--f-mono);
+  font-size: 0.58rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
 .blog-title {
   font-family: var(--f-display);
   font-size: 1.1rem;

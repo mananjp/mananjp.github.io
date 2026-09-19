@@ -20,7 +20,7 @@
   <meta property="og:url" content="https://mananjp.github.io/blog/rag-at-scale-clarix.html" />
   <meta property="og:title" content="RAG at Scale: From Single-Doc to Multimodal Production Pipelines" />
   <meta property="og:description" content="Lessons from evolving Clarix into a full multimodal RAG system — chunking strategies, embedding choices, and the retrieval-generation tradeoff in practice." />
-  <meta property="og:image" content="https://mananjp.github.io/assets/og-image.png" />
+  <meta property="og:image" content="https://mananjp.github.io/blog/clarix_diagram.png" />
   <meta property="og:site_name" content="Manan Panchal Blog" />
   <meta property="article:published_time" content="2026-08-30T00:00:00+05:30" />
   <meta property="article:author" content="Manan Panchal" />
@@ -32,7 +32,7 @@
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="RAG at Scale: From Single-Doc to Multimodal Production Pipelines" />
   <meta name="twitter:description" content="Lessons from evolving Clarix into a full multimodal RAG system — chunking strategies, embedding choices, and the retrieval-generation tradeoff in practice." />
-  <meta name="twitter:image" content="https://mananjp.github.io/assets/og-image.png" />
+  <meta name="twitter:image" content="https://mananjp.github.io/blog/clarix_diagram.png" />
 
   <!-- Structured Data (JSON-LD) -->
   <script type="application/ld+json">
@@ -41,6 +41,7 @@
     "@type": "BlogPosting",
     "headline": "RAG at Scale: From Single-Doc to Multimodal Production Pipelines",
     "description": "Lessons from evolving Clarix into a full multimodal RAG system — chunking strategies, embedding choices, and the retrieval-generation tradeoff in practice.",
+    "image": "https://mananjp.github.io/blog/clarix_diagram.png",
     "datePublished": "2026-08-30",
     "dateModified": "2026-08-30",
     "author": {
@@ -56,6 +57,9 @@
       "@type": "WebPage",
       "@id": "https://mananjp.github.io/blog/rag-at-scale-clarix.html"
     },
+    "sameAs": [
+      "https://medium.com/@mananjpanchal11/6cbc13d83918"
+    ],
     "keywords": ["RAG", "Retrieval Augmented Generation", "Multimodal RAG", "Vector Search", "LLM", "Embeddings", "Chunking", "Clarix", "Semantic Search"],
     "wordCount": 1500,
     "timeRequired": "PT10M"
@@ -98,16 +102,32 @@
         </div>
       </header>
 
-      <div class="blog-post-body" itemprop="articleBody">
-        <p>Clarix started as the simplest possible version of retrieval-augmented generation: upload a document, ask a question, get an answer grounded in that document. That version works fine as a demo. It falls apart the moment you point it at a real corpus — dozens of files, mixed formats, questions that span more than one document — because every assumption that made the single-doc version simple stops holding.</p>
+      <!-- Medium Callout -->
+      <div class="blog-medium-callout">
+        <span class="blog-medium-callout-text">Also published on Medium</span>
+        <a href="https://medium.com/@mananjpanchal11/6cbc13d83918" target="_blank" rel="noopener noreferrer" class="blog-medium-btn">
+          <svg width="16" height="16" viewBox="0 0 1043.63 592.71" fill="currentColor"><path d="M588.67 296.36c0 163.67-131.78 296.35-294.33 296.35S0 460.03 0 296.36 131.78 0 294.34 0s294.33 132.69 294.33 296.36M911.56 296.36c0 154.06-65.89 279-147.17 279s-147.17-124.94-147.17-279 65.88-279 147.16-279 147.17 124.9 147.17 279M1043.63 296.36c0 138-23.17 249.94-51.76 249.94s-51.75-111.91-51.75-249.94 23.17-249.94 51.75-249.94 51.76 111.9 51.76 249.94"/></svg>
+          Read on Medium &rarr;
+        </a>
+      </div>
 
-        <p>This is a write-up of what actually broke on the way from "one document, one answer" to a production-shaped multimodal RAG pipeline, and the trade-offs I kept running into at each stage.</p>
+      <div class="blog-post-body" itemprop="articleBody">
+        <p>Clarix is a compliance workspace — asset managers and reviewers use it to ingest documents, validate them against regulatory rules, simulate what-if scenarios, and generate auditable, citation-backed answers, all logged through an append-only Merkle ledger for traceability. It's a larger system than any single post can cover, so this one is scoped deliberately: it's about the retrieval-and-generation layer underneath the compliance engine — not the rules validation, audit trail, or governance tooling built on top of it.</p>
+
+        <p>That layer started as the simplest possible version of retrieval-augmented generation: upload a document, ask a question, get an answer grounded in that document. That version works fine as a demo. It falls apart the moment you point it at a real corpus — dozens of filings, mixed formats, questions that span more than one document — because every assumption that made the single-doc version simple stops holding.</p>
+
+        <p>This is a write-up of what actually broke on the way from "one document, one answer" to a production-shaped multimodal RAG pipeline underneath Clarix's compliance engine, and the trade-offs I kept running into at each stage.</p>
+
+        <figure class="blog-post-figure">
+          <img src="clarix_diagram.png" alt="Clarix Production Architecture Diagram showing Workspace UI, API Boundary, Compliance Engine, Governance Features, and Evidence Data" class="blog-post-img" loading="lazy" />
+          <figcaption>Clarix Full System Architecture: Compliance Engine, Evidence Data, and Governance Features</figcaption>
+        </figure>
 
         <h2>The single-document version is deceptively easy</h2>
 
         <p>A one-document RAG pipeline is almost embarrassingly simple: chunk the document, embed the chunks, embed the query, retrieve the top-k nearest chunks, stuff them into a prompt, generate. It works well precisely because the hard problems haven't shown up yet — there's no ambiguity about <em>which</em> document an answer should come from, no need to reconcile conflicting chunks from different sources, and the corpus is small enough that even a mediocre chunking strategy retrieves something relevant most of the time.</p>
 
-        <p>None of that survives contact with a real multi-document corpus.</p>
+        <p>None of that survives contact with a real multi-document compliance corpus.</p>
 
         <h2>Chunking: the decision that quietly determines everything downstream</h2>
 
@@ -115,7 +135,7 @@
 
         <p>Fixed-size chunking (split every N tokens) is the easiest to implement and the easiest to get wrong. It cuts through sentences, tables, and section boundaries with no regard for where the actual semantic units are, which means a chunk can contain half of a relevant answer and none of the context that makes it interpretable. The failure mode is subtle: retrieval "succeeds" — it finds a chunk with the right keywords — but the chunk doesn't actually contain a complete, answerable unit of information.</p>
 
-        <p>Semantic or structure-aware chunking (splitting on headings, paragraphs, or embedding-similarity boundaries) fixes a lot of that, at the cost of variable chunk sizes that complicate batching and, in my experience, still need document-type-specific tuning. A contract and a lab report should not be chunked the same way — a contract's meaningful unit is often a clause; a report's is often a full paragraph or a table row. Clarix ended up needing different chunking heuristics per document type rather than one universal strategy, which is a more honest answer than "we solved chunking" but a less satisfying one.</p>
+        <p>Semantic or structure-aware chunking (splitting on headings, paragraphs, or embedding-similarity boundaries) fixes a lot of that, at the cost of variable chunk sizes that complicate batching and, in my experience, still need document-type-specific tuning. A regulatory filing and an internal audit memo should not be chunked the same way — a filing's meaningful unit is often a numbered clause or disclosure item; a memo's is often a full paragraph or a findings table row. Clarix ended up needing different chunking heuristics per document type rather than one universal strategy, which is a more honest answer than "we solved chunking" but a less satisfying one.</p>
 
         <p>The trade-off in one sentence: <strong>smaller chunks improve retrieval precision and hurt generation coherence; larger chunks do the opposite.</strong> Every RAG system is choosing a point on that curve, whether or not the choice is explicit.</p>
 
@@ -126,11 +146,11 @@
         <p>Two concrete versions of this showed up repeatedly:</p>
 
         <ul>
-          <li><strong>Query-document asymmetry.</strong> A short, informal question and a long, formal document chunk don't naturally land close together in embedding space even when the chunk answers the question well. Some embedding models handle this asymmetry better than others; some setups need a separate query-encoding step tuned for it. Ignoring this quietly caps retrieval quality no matter how good the underlying model is.</li>
-          <li><strong>Domain drift.</strong> A general-purpose embedding model trained mostly on web text does a mediocre job distinguishing between two similar technical clauses in a legal or medical document, because the distinctions that matter in that domain weren't well-represented in its training distribution. This is the harder problem — fine-tuning or domain-adapting an embedding model is a real project on its own, not a config change.</li>
+          <li><strong>Query-document asymmetry.</strong> A short, informal question like "did we flag this vendor for AML risk last quarter?" and a long, formal compliance filing don't naturally land close together in embedding space even when the filing answers the question well. Some embedding models handle this asymmetry better than others; some setups need a separate query-encoding step tuned for it. Ignoring this quietly caps retrieval quality no matter how good the underlying model is.</li>
+          <li><strong>Domain drift.</strong> A general-purpose embedding model trained mostly on web text does a mediocre job distinguishing between two similar regulatory clauses — say, two disclosure requirements that differ in one jurisdiction-specific detail — because the distinctions that matter in compliance work weren't well-represented in its training distribution. This is the harder problem — fine-tuning or domain-adapting an embedding model is a real project on its own, not a config change.</li>
         </ul>
 
-        <p>The pragmatic middle ground Clarix uses is picking embeddings suited to the dominant content type per corpus rather than one embedding model for every document type uploaded — with the acknowledged cost that this makes the system less "one model fits all" and more an ensemble of decisions.</p>
+        <p>The pragmatic middle ground Clarix uses is picking embeddings suited to the dominant content type per corpus, rather than one embedding model for every document type uploaded — with the acknowledged cost that this makes the system less "one model fits all" and more an ensemble of decisions.</p>
 
         <h2>Going multimodal: text was the easy part</h2>
 
@@ -141,7 +161,7 @@
         <ul>
           <li>Text gets chunked and embedded as text.</li>
           <li>Code gets chunked along function/class boundaries rather than line counts, and embedded with a code-aware model — treating a function as prose loses the structural information that actually makes code retrievable.</li>
-          <li>Images get captioned or OCR'd where relevant, and the resulting text is embedded alongside a direct image embedding, so a query can match either the described content or the visual content.</li>
+          <li>Images and scanned exhibits get captioned or OCR'd where relevant, and the resulting text is embedded alongside a direct image embedding, so a query can match either the described content or the visual content.</li>
         </ul>
 
         <p>Retrieval then runs across tracks and merges results by relevance score, rather than pretending there's one universal similarity metric across modalities. This is more moving parts than a single-embedding pipeline, and it's the honest cost of "multimodal" — it's not one model doing more, it's several retrieval paths being reconciled.</p>
@@ -150,19 +170,38 @@
 
         <p>The core tension in any RAG system is this: <strong>retrieve too narrowly and the model hallucinates around a gap; retrieve too broadly and the model gets lost in irrelevant context and starts blending sources it shouldn't.</strong></p>
 
-        <p>A few things that helped manage this in practice:</p>
+        <p>This matters more than usual in a compliance context, where a plausible-sounding but ungrounded answer isn't just an inconvenience — it's a liability. A few things that helped manage this in practice:</p>
 
         <ul>
-          <li><strong>Grounded refusal over confident guessing.</strong> When retrieval confidence is low, the system should say so rather than let the generation step paper over the gap with a fluent-sounding but ungrounded answer. This is a UX cost — "I don't have enough information to answer that confidently" is a less satisfying response than a wrong one that reads well — but it's the difference between a tool people can actually trust and one that just sounds trustworthy.</li>
-          <li><strong>Citing the source chunk, not just the answer.</strong> Every generated answer in Clarix links back to the specific chunk(s) it drew from. This doesn't prevent hallucination, but it makes it checkable — a user can verify a claim in seconds instead of having to trust the system's confidence.</li>
+          <li><strong>Grounded refusal over confident guessing.</strong> When retrieval confidence is low, the system should say so rather than let the generation step paper over the gap with a fluent-sounding but ungrounded answer. This is a UX cost — "I don't have enough information to answer that confidently" is a less satisfying response than a wrong one that reads well — but it's the difference between a tool a reviewer can actually sign off on and one that just sounds trustworthy.</li>
+          <li><strong>Citing the source chunk, not just the answer.</strong> Every generated answer in Clarix links back to the specific chunk(s) it drew from, which then feeds into the audit trail. This doesn't prevent hallucination, but it makes it checkable — a reviewer can verify a claim in seconds instead of having to trust the system's confidence.</li>
           <li><strong>Re-ranking after retrieval, before generation.</strong> An initial vector-similarity retrieval pass is fast but imprecise; a second re-ranking pass (heavier, but only run on the much smaller candidate set) catches cases where the top-k by raw similarity isn't actually the top-k by relevance to the specific question asked.</li>
         </ul>
 
         <h2>What's still unresolved</h2>
 
-        <p>To be direct about the current limits: cross-document reasoning — synthesizing an answer that genuinely depends on combining information from multiple sources rather than just retrieving from the best single one — remains the weakest part of the pipeline. Retrieval finds the right individual chunks reasonably often; getting generation to correctly reconcile or combine them, rather than just concatenating context and hoping, is the open problem I'd point to next.</p>
+        <p>To be direct about the current limits: cross-document reasoning — synthesizing an answer that genuinely depends on combining information from multiple filings rather than just retrieving from the best single one — remains the weakest part of the pipeline. Retrieval finds the right individual chunks reasonably often; getting generation to correctly reconcile or combine them, rather than just concatenating context and hoping, is the open problem I'd point to next.</p>
 
-        <p>The live demo and source are linked from the <a href="../index.html#projects">project card on the homepage</a>.</p>
+        <!-- Project Links Box -->
+        <div class="blog-action-box">
+          <h4>Project Links &amp; Resources</h4>
+          <div class="blog-action-links">
+            <a href="https://clarix-l4f5.onrender.com/" target="_blank" rel="noopener noreferrer" class="blog-action-btn accent">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              Clarix Live Demo
+            </a>
+            <a href="https://github.com/mananjp/Clarix" target="_blank" rel="noopener noreferrer" class="blog-action-btn">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+              GitHub Repository
+            </a>
+            <a href="https://medium.com/@mananjpanchal11/6cbc13d83918" target="_blank" rel="noopener noreferrer" class="blog-action-btn">
+              <svg width="14" height="14" viewBox="0 0 1043.63 592.71" fill="currentColor"><path d="M588.67 296.36c0 163.67-131.78 296.35-294.33 296.35S0 460.03 0 296.36 131.78 0 294.34 0s294.33 132.69 294.33 296.36M911.56 296.36c0 154.06-65.89 279-147.17 279s-147.17-124.94-147.17-279 65.88-279 147.16-279 147.17 124.9 147.17 279M1043.63 296.36c0 138-23.17 249.94-51.76 249.94s-51.75-111.91-51.75-249.94 23.17-249.94 51.75-249.94 51.76 111.9 51.76 249.94"/></svg>
+              Read on Medium
+            </a>
+          </div>
+        </div>
+
+        <p style="font-size:0.9rem; color:rgba(255,255,255,0.5); font-style:italic;">This post covered the retrieval and generation layer. The audit trail, Merkle ledger, and compliance-specific features &mdash; rules validation, impact simulation, greenwashing detection, framework alignment &mdash; are their own story. I'll be writing about those next.</p>
       </div>
 
       <footer class="blog-post-footer">

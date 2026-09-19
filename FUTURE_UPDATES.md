@@ -14,7 +14,7 @@ Status of the Neural Silence portfolio and planned roadmap.
 
 ## Phase 1 — Quick Wins
 
-- [ ] Downloadable resume PDF (button in nav, hero, and contact)
+- [x] Downloadable resume PDF (button in hero CTA area)
 - [ ] Custom themed `404.html` ("signal lost" page) — GitHub Pages serves automatically
 - [ ] Scrollspy — active nav link highlights while scrolling sections
 - [ ] Tab-visibility pause + smaller particle budget on low-end/small screens
@@ -23,14 +23,14 @@ Status of the Neural Silence portfolio and planned roadmap.
 ## Phase 2 — Richer Content
 
 - [ ] Project detail modals/pages (stack, problem, approach, metrics, role, links)
-- [ ] Wire "Lab Notes" blog cards to real posts (Medium / Dev.to / Hashnode or drafts)
+- [x] Wire blog cards to real posts (dedicated HTML pages with full SEO)
 - [ ] Certifications & awards strip (SSIP grant, NVIDIA Jetson Nano, Perplexity ambassador)
 - [ ] Project screenshots + lightbox
 
 ## Phase 3 — Metrics & Performance
 
 - [ ] Privacy-friendly analytics (GoatCounter / Plausible / GA4)
-- [ ] Rich JSON-LD: `CreativeWork` / project schema + `Article` schema for blog
+- [x] Rich JSON-LD: `Article` / `BlogPosting` schema for blog posts
 - [ ] Google Fonts font-display already swap — verify / preload critical fonts
 - [ ] Full favicon set + apple-touch-icon (currently only `favicon.svg`)
 - [ ] Lighthouse CI step in the deploy workflow

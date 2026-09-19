@@ -1,0 +1,215 @@
+/* ============================================================
+   BLOG POST PAGE STYLES
+   ============================================================ */
+
+.blog-post-page {
+  background: var(--bg, #080808);
+  color: var(--text, #e0e0e0);
+  min-height: 100vh;
+}
+
+.blog-post-main {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 120px 24px 80px;
+}
+
+.blog-post-article {
+  animation: blogFadeIn 0.6s ease-out;
+}
+
+@keyframes blogFadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Back link */
+.blog-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--accent, #c9a96e);
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  margin-bottom: 32px;
+  transition: opacity 0.2s;
+}
+
+.blog-back-link:hover {
+  opacity: 0.75;
+}
+
+/* Header */
+.blog-post-header {
+  margin-bottom: 48px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  padding-bottom: 32px;
+}
+
+.blog-post-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.4);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.blog-post-header h1 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  font-weight: 600;
+  line-height: 1.2;
+  color: #fff;
+  margin: 0 0 20px;
+}
+
+.blog-post-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.blog-post-tags span {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  border-radius: 100px;
+  border: 1px solid rgba(201, 169, 110, 0.25);
+  color: var(--accent, #c9a96e);
+  background: rgba(201, 169, 110, 0.06);
+}
+
+/* Article body */
+.blog-post-body {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.05rem;
+  line-height: 1.82;
+  color: rgba(255,255,255,0.78);
+}
+
+.blog-post-body p {
+  margin: 0 0 1.5em;
+}
+
+.blog-post-body h2 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #fff;
+  margin: 2.5em 0 0.8em;
+  padding-top: 1em;
+  border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+.blog-post-body h2:first-of-type {
+  border-top: none;
+  padding-top: 0;
+}
+
+.blog-post-body strong {
+  color: #fff;
+  font-weight: 600;
+}
+
+.blog-post-body em {
+  font-style: italic;
+  color: rgba(255,255,255,0.85);
+}
+
+.blog-post-body a {
+  color: var(--accent, #c9a96e);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: opacity 0.2s;
+}
+
+.blog-post-body a:hover {
+  opacity: 0.75;
+}
+
+.blog-post-body ul,
+.blog-post-body ol {
+  margin: 0 0 1.5em;
+  padding-left: 1.5em;
+}
+
+.blog-post-body li {
+  margin-bottom: 0.8em;
+  line-height: 1.75;
+}
+
+.blog-post-body code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.88em;
+  background: rgba(255,255,255,0.06);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: var(--accent, #c9a96e);
+}
+
+.blog-post-body pre {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 8px;
+  padding: 20px 24px;
+  overflow-x: auto;
+  margin: 0 0 1.5em;
+}
+
+.blog-post-body pre code {
+  background: none;
+  padding: 0;
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+.blog-post-body blockquote {
+  border-left: 3px solid var(--accent, #c9a96e);
+  margin: 0 0 1.5em;
+  padding: 12px 20px;
+  background: rgba(201, 169, 110, 0.04);
+  border-radius: 0 8px 8px 0;
+  color: rgba(255,255,255,0.7);
+  font-style: italic;
+}
+
+/* Footer */
+.blog-post-footer {
+  margin-top: 60px;
+  padding-top: 32px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+.site-footer {
+  text-align: center;
+  padding: 32px 24px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.3);
+  letter-spacing: 0.03em;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .blog-post-main {
+    padding: 100px 16px 60px;
+  }
+
+  .blog-post-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .blog-post-body {
+    font-size: 0.95rem;
+    line-height: 1.75;
+  }
+}

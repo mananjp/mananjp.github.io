@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Designing an Agent Firewall: Rate Limits, Schema Verification, and LLM Semantic Parsing — Manan Panchal</title>
+
+  <!-- SEO Meta -->
+  <meta name="description" content="Multi-agent systems need governance layers. A2A Firewall intercepts agent-to-agent communications with rate limiting, schema verification, a permissions matrix, and Groq LLM semantic parsing. Deep-dive into the architecture." />
+  <meta name="keywords" content="Agent Firewall, Multi-Agent Systems, A2A Firewall, LLM Security, Schema Verification, Rate Limiting, Agent Governance, Manan Panchal, AI Security, Groq, Semantic Parsing, Agent-to-Agent Communication" />
+  <meta name="author" content="Manan Panchal" />
+  <meta name="robots" content="index, follow" />
+  <meta name="theme-color" content="#080808" />
+
+  <!-- Canonical URL -->
+  <link rel="canonical" href="https://mananjp.github.io/blog/designing-an-agent-firewall.html" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://mananjp.github.io/blog/designing-an-agent-firewall.html" />
+  <meta property="og:title" content="Designing an Agent Firewall: Rate Limits, Schema Verification, and LLM Semantic Parsing" />
+  <meta property="og:description" content="Multi-agent systems need governance layers. A2A Firewall intercepts agent-to-agent communications with rate limiting, schema verification, a permissions matrix, and Groq LLM semantic parsing." />
+  <meta property="og:image" content="https://mananjp.github.io/assets/og-image.png" />
+  <meta property="og:site_name" content="Manan Panchal Blog" />
+  <meta property="article:published_time" content="2026-08-30T00:00:00+05:30" />
+  <meta property="article:author" content="Manan Panchal" />
+  <meta property="article:tag" content="Multi-Agent" />
+  <meta property="article:tag" content="Security" />
+  <meta property="article:tag" content="LLM" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Designing an Agent Firewall: Rate Limits, Schema Verification, and LLM Semantic Parsing" />
+  <meta name="twitter:description" content="Multi-agent systems need governance layers. A2A Firewall intercepts agent-to-agent communications with a permissions mesh — here's the architecture behind it." />
+  <meta name="twitter:image" content="https://mananjp.github.io/assets/og-image.png" />
+
+  <!-- Structured Data (JSON-LD) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": "Designing an Agent Firewall: Rate Limits, Schema Verification, and LLM Semantic Parsing",
+    "description": "Multi-agent systems need governance layers. A2A Firewall intercepts agent-to-agent communications with rate limiting, schema verification, a permissions matrix, and Groq LLM semantic parsing.",
+    "datePublished": "2026-08-30",
+    "dateModified": "2026-08-30",
+    "author": {
+      "@type": "Person",
+      "name": "Manan Panchal",
+      "url": "https://mananjp.github.io/"
+    },
+    "publisher": {
+      "@type": "Person",
+      "name": "Manan Panchal"
+    },
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "https://mananjp.github.io/blog/designing-an-agent-firewall.html"
+    },
+    "keywords": ["Multi-Agent Systems", "Agent Firewall", "A2A Firewall", "LLM Security", "Schema Verification", "Rate Limiting", "Semantic Parsing", "Groq"],
+    "wordCount": 950,
+    "timeRequired": "PT6M"
+  }
+  </script>
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="../assets/style.css"/>
+  <link rel="stylesheet" href="../assets/blog-post.css"/>
+</head>
+<body class="blog-post-page">
+  <!-- NAV (minimal) -->
+  <nav id="nav" class="scrolled">
+    <a href="../index.html" class="nav-logo">Manan<span>JP</span></a>
+    <ul class="nav-links">
+      <li><a href="../index.html#about">About</a></li>
+      <li><a href="../index.html#projects">Work</a></li>
+      <li><a href="../index.html#blog">Blog</a></li>
+      <li><a href="../index.html#contact">Contact</a></li>
+    </ul>
+  </nav>
+
+  <main class="blog-post-main">
+    <article class="blog-post-article" itemscope itemtype="https://schema.org/BlogPosting">
+      <header class="blog-post-header">
+        <a href="../index.html#blog" class="blog-back-link">&larr; Back to Blog</a>
+        <div class="blog-post-meta">
+          <time datetime="2026-08-30" itemprop="datePublished">August 30, 2026</time>
+          <span class="blog-post-read">6 min read</span>
+        </div>
+        <h1 itemprop="headline">Designing an Agent Firewall: Rate Limits, Schema Verification, and LLM Semantic Parsing</h1>
+        <div class="blog-post-tags">
+          <span>Multi-Agent</span><span>Security</span><span>LLM</span>
+        </div>
+      </header>
+
+      <div class="blog-post-body" itemprop="articleBody">
+        <p>Single-agent failure is a known problem with known mitigations — retries, guardrails, human review. Multi-agent failure is different in kind, not just degree, because the failure mode usually isn't any one agent misbehaving. It's agents trusting each other's messages by default, the same way early internal networks trusted anything already inside the perimeter.</p>
+
+        <p>That's the problem A2A Firewall is built to answer: treat agent-to-agent traffic the way a real network treats host-to-host traffic — something to inspect, rate-limit, and authorize, not something to assume is safe just because it originated inside the system.</p>
+
+        <h2>What actually goes wrong in multi-agent setups</h2>
+
+        <p>In practice, prototyping anything with more than two cooperating agents kept surfacing the same three failure classes:</p>
+
+        <ol>
+          <li><strong>Unbounded delegation.</strong> Agent A asks Agent B to do something, B asks C, and nobody is tracking whether that chain should ever terminate. Each hop looks reasonable in isolation; the aggregate is a runaway loop.</li>
+          <li><strong>Schema drift.</strong> An upstream agent changes its output format slightly — a renamed field, a different nesting — and a downstream agent silently misinterprets it instead of failing loudly. The bug doesn't announce itself; it just produces wrong answers that look plausible.</li>
+          <li><strong>Permission creep.</strong> An agent granted a narrow capability for one task reuses that capability in a context nobody scoped it for, because nothing enforced the boundary at the call site.</li>
+        </ol>
+
+        <p>None of these are exotic. They're the same category of bug distributed systems have had for decades — unbounded retries, contract breaks, privilege escalation — just wearing a new name because the caller happens to be an LLM instead of a service.</p>
+
+        <h2>Why a mesh instead of a single chokepoint</h2>
+
+        <p>The obvious first design is a single gateway all agent traffic passes through. A2A Firewall doesn't do that — it sits as a <strong>mesh</strong> between agents, applying policy at each hop instead of only at the edge. A single chokepoint gives you one point of failure and one place where policy has to understand every possible interaction pattern in the system. A mesh lets policy be scoped to the specific pair of agents talking, which is where the actual risk lives.</p>
+
+        <p>Four mechanisms do the work:</p>
+
+        <ul>
+          <li><strong>Rate limiting per agent-pair, not just per system.</strong> If Agent A is allowed to call Agent B up to a set threshold, a runaway delegation chain from A can't starve every other pair sharing the system. Global rate limits hide exactly the failure mode you're trying to catch — one bad chain looks the same as normal aggregate load until it's too late.</li>
+          <li><strong>Schema verification on every inter-agent message.</strong> Every payload gets validated against the receiving agent's expected schema <em>before</em> it reaches that agent's parser. A malformed or drifted message gets rejected at the boundary with a clear reason, instead of silently misparsed three function calls deep where the original cause is already lost.</li>
+          <li><strong>A permissions matrix.</strong> This scopes not just <em>whether</em> two agents can talk, but <em>about what</em>. Agent A being allowed to ask Agent B for a summary doesn't imply A can ask B to execute a write operation. The matrix is checked on every message, not just at session setup, so a capability granted for one exchange doesn't quietly carry over to the next.</li>
+          <li><strong>LLM-backed semantic parsing.</strong> This is the harder layer. A message can be perfectly schema-valid and still be outside what an agent's role should ever ask for — a request that's structurally fine but semantically wrong. Catching that requires understanding intent, not just shape, so this layer uses a Groq-hosted model to classify whether a request plausibly belongs to the requesting agent's declared scope before it's allowed through.</li>
+        </ul>
+
+        <h2>Where the semantic layer earns its cost</h2>
+
+        <p>The rate limiter and schema check are cheap and deterministic — they should catch the majority of problems on their own. The LLM semantic parser is slower and non-deterministic, which means it has to be reserved for the class of failure the first two layers structurally can't see: a request that is valid in form but wrong in intent. Running it on every single message would be wasteful and would introduce its own failure surface — a flaky classifier is a new attack surface, not a fix. In practice it's invoked selectively, on messages that cross a permission boundary the matrix flags as sensitive, rather than on the full firewall traffic.</p>
+
+        <p>That's a deliberate trade-off worth stating plainly: the semantic layer adds real latency and a non-zero false-positive/false-negative rate. The honest framing is that it raises the cost of a certain class of attack, not that it eliminates it.</p>
+
+        <h2>What this doesn't solve</h2>
+
+        <p>A2A Firewall governs traffic between agents that are already participating in the mesh. It doesn't solve the harder problem of an agent that's compromised at the model level and generates messages that are schema-valid, permission-valid, <em>and</em> semantically plausible for its role — a well-disguised insider, in network terms. That's a different, harder problem, closer to anomaly detection on behavior over time than to message-level inspection. I'd rather say that clearly than let the firewall framing imply more coverage than it has.</p>
+
+        <p>The live demo and source are linked from the <a href="../index.html#projects">project card on the homepage</a> — feedback on where the permissions matrix should sit between static and adaptive is genuinely welcome.</p>
+      </div>
+
+      <footer class="blog-post-footer">
+        <a href="../index.html#blog" class="btn-primary">&larr; Back to Blog</a>
+      </footer>
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <p>&copy; 2026 Manan Panchal. All rights reserved.</p>
+  </footer>
+</body>
+</html>

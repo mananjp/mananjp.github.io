@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RAG at Scale: From Single-Doc to Multimodal Production Pipelines — Manan Panchal</title>
+
+  <!-- SEO Meta -->
+  <meta name="description" content="Lessons from evolving Clarix into a full multimodal RAG system — chunking strategies that actually matter, embedding model mismatch pitfalls, multi-track retrieval for code and images, and the retrieval-generation tradeoff in practice." />
+  <meta name="keywords" content="RAG, Retrieval Augmented Generation, Multimodal RAG, Vector Search, LLM, Embeddings, Chunking Strategy, Clarix, Semantic Search, Production RAG Pipeline, Manan Panchal, Re-ranking, Document Intelligence" />
+  <meta name="author" content="Manan Panchal" />
+  <meta name="robots" content="index, follow" />
+  <meta name="theme-color" content="#080808" />
+
+  <!-- Canonical URL -->
+  <link rel="canonical" href="https://mananjp.github.io/blog/rag-at-scale-clarix.html" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://mananjp.github.io/blog/rag-at-scale-clarix.html" />
+  <meta property="og:title" content="RAG at Scale: From Single-Doc to Multimodal Production Pipelines" />
+  <meta property="og:description" content="Lessons from evolving Clarix into a full multimodal RAG system — chunking strategies, embedding choices, and the retrieval-generation tradeoff in practice." />
+  <meta property="og:image" content="https://mananjp.github.io/assets/og-image.png" />
+  <meta property="og:site_name" content="Manan Panchal Blog" />
+  <meta property="article:published_time" content="2026-08-30T00:00:00+05:30" />
+  <meta property="article:author" content="Manan Panchal" />
+  <meta property="article:tag" content="RAG" />
+  <meta property="article:tag" content="LLM" />
+  <meta property="article:tag" content="Vector Search" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="RAG at Scale: From Single-Doc to Multimodal Production Pipelines" />
+  <meta name="twitter:description" content="Lessons from evolving Clarix into a full multimodal RAG system — chunking strategies, embedding choices, and the retrieval-generation tradeoff in practice." />
+  <meta name="twitter:image" content="https://mananjp.github.io/assets/og-image.png" />
+
+  <!-- Structured Data (JSON-LD) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": "RAG at Scale: From Single-Doc to Multimodal Production Pipelines",
+    "description": "Lessons from evolving Clarix into a full multimodal RAG system — chunking strategies, embedding choices, and the retrieval-generation tradeoff in practice.",
+    "datePublished": "2026-08-30",
+    "dateModified": "2026-08-30",
+    "author": {
+      "@type": "Person",
+      "name": "Manan Panchal",
+      "url": "https://mananjp.github.io/"
+    },
+    "publisher": {
+      "@type": "Person",
+      "name": "Manan Panchal"
+    },
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "https://mananjp.github.io/blog/rag-at-scale-clarix.html"
+    },
+    "keywords": ["RAG", "Retrieval Augmented Generation", "Multimodal RAG", "Vector Search", "LLM", "Embeddings", "Chunking", "Clarix", "Semantic Search"],
+    "wordCount": 1500,
+    "timeRequired": "PT10M"
+  }
+  </script>
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="../assets/style.css"/>
+  <link rel="stylesheet" href="../assets/blog-post.css"/>
+</head>
+<body class="blog-post-page">
+  <!-- NAV (minimal) -->
+  <nav id="nav" class="scrolled">
+    <a href="../index.html" class="nav-logo">Manan<span>JP</span></a>
+    <ul class="nav-links">
+      <li><a href="../index.html#about">About</a></li>
+      <li><a href="../index.html#projects">Work</a></li>
+      <li><a href="../index.html#blog">Blog</a></li>
+      <li><a href="../index.html#contact">Contact</a></li>
+    </ul>
+  </nav>
+
+  <main class="blog-post-main">
+    <article class="blog-post-article" itemscope itemtype="https://schema.org/BlogPosting">
+      <header class="blog-post-header">
+        <a href="../index.html#blog" class="blog-back-link">&larr; Back to Blog</a>
+        <div class="blog-post-meta">
+          <time datetime="2026-08-30" itemprop="datePublished">August 30, 2026</time>
+          <span class="blog-post-read">10 min read</span>
+        </div>
+        <h1 itemprop="headline">RAG at Scale: From Single-Doc to Multimodal Production Pipelines</h1>
+        <div class="blog-post-tags">
+          <span>RAG</span><span>LLM</span><span>Vector Search</span>
+        </div>
+      </header>
+
+      <div class="blog-post-body" itemprop="articleBody">
+        <p>Clarix started as the simplest possible version of retrieval-augmented generation: upload a document, ask a question, get an answer grounded in that document. That version works fine as a demo. It falls apart the moment you point it at a real corpus — dozens of files, mixed formats, questions that span more than one document — because every assumption that made the single-doc version simple stops holding.</p>
+
+        <p>This is a write-up of what actually broke on the way from "one document, one answer" to a production-shaped multimodal RAG pipeline, and the trade-offs I kept running into at each stage.</p>
+
+        <h2>The single-document version is deceptively easy</h2>
+
+        <p>A one-document RAG pipeline is almost embarrassingly simple: chunk the document, embed the chunks, embed the query, retrieve the top-k nearest chunks, stuff them into a prompt, generate. It works well precisely because the hard problems haven't shown up yet — there's no ambiguity about <em>which</em> document an answer should come from, no need to reconcile conflicting chunks from different sources, and the corpus is small enough that even a mediocre chunking strategy retrieves something relevant most of the time.</p>
+
+        <p>None of that survives contact with a real multi-document corpus.</p>
+
+        <h2>Chunking: the decision that quietly determines everything downstream</h2>
+
+        <p>Chunking looks like a preprocessing detail. It isn't — it's the decision that most directly controls what retrieval is even capable of finding.</p>
+
+        <p>Fixed-size chunking (split every N tokens) is the easiest to implement and the easiest to get wrong. It cuts through sentences, tables, and section boundaries with no regard for where the actual semantic units are, which means a chunk can contain half of a relevant answer and none of the context that makes it interpretable. The failure mode is subtle: retrieval "succeeds" — it finds a chunk with the right keywords — but the chunk doesn't actually contain a complete, answerable unit of information.</p>
+
+        <p>Semantic or structure-aware chunking (splitting on headings, paragraphs, or embedding-similarity boundaries) fixes a lot of that, at the cost of variable chunk sizes that complicate batching and, in my experience, still need document-type-specific tuning. A contract and a lab report should not be chunked the same way — a contract's meaningful unit is often a clause; a report's is often a full paragraph or a table row. Clarix ended up needing different chunking heuristics per document type rather than one universal strategy, which is a more honest answer than "we solved chunking" but a less satisfying one.</p>
+
+        <p>The trade-off in one sentence: <strong>smaller chunks improve retrieval precision and hurt generation coherence; larger chunks do the opposite.</strong> Every RAG system is choosing a point on that curve, whether or not the choice is explicit.</p>
+
+        <h2>Embeddings: the model matters less than the mismatch</h2>
+
+        <p>It's tempting to treat embedding model choice as the highest-leverage decision in a RAG pipeline. In practice, the bigger source of failure was <strong>mismatch between the embedding space and the content being embedded</strong>, not the raw quality of any single model.</p>
+
+        <p>Two concrete versions of this showed up repeatedly:</p>
+
+        <ul>
+          <li><strong>Query-document asymmetry.</strong> A short, informal question and a long, formal document chunk don't naturally land close together in embedding space even when the chunk answers the question well. Some embedding models handle this asymmetry better than others; some setups need a separate query-encoding step tuned for it. Ignoring this quietly caps retrieval quality no matter how good the underlying model is.</li>
+          <li><strong>Domain drift.</strong> A general-purpose embedding model trained mostly on web text does a mediocre job distinguishing between two similar technical clauses in a legal or medical document, because the distinctions that matter in that domain weren't well-represented in its training distribution. This is the harder problem — fine-tuning or domain-adapting an embedding model is a real project on its own, not a config change.</li>
+        </ul>
+
+        <p>The pragmatic middle ground Clarix uses is picking embeddings suited to the dominant content type per corpus rather than one embedding model for every document type uploaded — with the acknowledged cost that this makes the system less "one model fits all" and more an ensemble of decisions.</p>
+
+        <h2>Going multimodal: text was the easy part</h2>
+
+        <p>Extending Clarix to handle images, code files, and mixed-format documents exposed a different category of problem: <strong>there is no single shared embedding space that treats a diagram, a code snippet, and a paragraph of prose fairly.</strong></p>
+
+        <p>The approach that held up reasonably well was treating each modality as its own retrieval track rather than forcing everything into one vector space:</p>
+
+        <ul>
+          <li>Text gets chunked and embedded as text.</li>
+          <li>Code gets chunked along function/class boundaries rather than line counts, and embedded with a code-aware model — treating a function as prose loses the structural information that actually makes code retrievable.</li>
+          <li>Images get captioned or OCR'd where relevant, and the resulting text is embedded alongside a direct image embedding, so a query can match either the described content or the visual content.</li>
+        </ul>
+
+        <p>Retrieval then runs across tracks and merges results by relevance score, rather than pretending there's one universal similarity metric across modalities. This is more moving parts than a single-embedding pipeline, and it's the honest cost of "multimodal" — it's not one model doing more, it's several retrieval paths being reconciled.</p>
+
+        <h2>The retrieval-generation tradeoff, stated plainly</h2>
+
+        <p>The core tension in any RAG system is this: <strong>retrieve too narrowly and the model hallucinates around a gap; retrieve too broadly and the model gets lost in irrelevant context and starts blending sources it shouldn't.</strong></p>
+
+        <p>A few things that helped manage this in practice:</p>
+
+        <ul>
+          <li><strong>Grounded refusal over confident guessing.</strong> When retrieval confidence is low, the system should say so rather than let the generation step paper over the gap with a fluent-sounding but ungrounded answer. This is a UX cost — "I don't have enough information to answer that confidently" is a less satisfying response than a wrong one that reads well — but it's the difference between a tool people can actually trust and one that just sounds trustworthy.</li>
+          <li><strong>Citing the source chunk, not just the answer.</strong> Every generated answer in Clarix links back to the specific chunk(s) it drew from. This doesn't prevent hallucination, but it makes it checkable — a user can verify a claim in seconds instead of having to trust the system's confidence.</li>
+          <li><strong>Re-ranking after retrieval, before generation.</strong> An initial vector-similarity retrieval pass is fast but imprecise; a second re-ranking pass (heavier, but only run on the much smaller candidate set) catches cases where the top-k by raw similarity isn't actually the top-k by relevance to the specific question asked.</li>
+        </ul>
+
+        <h2>What's still unresolved</h2>
+
+        <p>To be direct about the current limits: cross-document reasoning — synthesizing an answer that genuinely depends on combining information from multiple sources rather than just retrieving from the best single one — remains the weakest part of the pipeline. Retrieval finds the right individual chunks reasonably often; getting generation to correctly reconcile or combine them, rather than just concatenating context and hoping, is the open problem I'd point to next.</p>
+
+        <p>The live demo and source are linked from the <a href="../index.html#projects">project card on the homepage</a>.</p>
+      </div>
+
+      <footer class="blog-post-footer">
+        <a href="../index.html#blog" class="btn-primary">&larr; Back to Blog</a>
+      </footer>
+    </article>
+  </main>
+
+  <footer class="site-footer">
+    <p>&copy; 2026 Manan Panchal. All rights reserved.</p>
+  </footer>
+</body>
+</html>

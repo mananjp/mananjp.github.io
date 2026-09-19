@@ -6,7 +6,7 @@
   <title>Designing an Agent Firewall: Rate Limits, Schema Verification, and LLM Semantic Parsing — Manan Panchal</title>
 
   <!-- SEO Meta -->
-  <meta name="description" content="Multi-agent systems need governance layers. A2A Firewall intercepts agent-to-agent communications with rate limiting, schema verification, a permissions matrix, and Groq LLM semantic parsing. Deep-dive into the architecture." />
+  <meta name="description" content="A2A Firewall is a standalone, open-source inter-agent governance mesh. It intercepts, validates, and traces every agent-to-agent message with rate limiting, schema verification, permissions matrix, and Groq LLM semantic parsing." />
   <meta name="keywords" content="Agent Firewall, Multi-Agent Systems, A2A Firewall, LLM Security, Schema Verification, Rate Limiting, Agent Governance, Manan Panchal, AI Security, Groq, Semantic Parsing, Agent-to-Agent Communication" />
   <meta name="author" content="Manan Panchal" />
   <meta name="robots" content="index, follow" />
@@ -19,8 +19,8 @@
   <meta property="og:type" content="article" />
   <meta property="og:url" content="https://mananjp.github.io/blog/designing-an-agent-firewall.html" />
   <meta property="og:title" content="Designing an Agent Firewall: Rate Limits, Schema Verification, and LLM Semantic Parsing" />
-  <meta property="og:description" content="Multi-agent systems need governance layers. A2A Firewall intercepts agent-to-agent communications with rate limiting, schema verification, a permissions matrix, and Groq LLM semantic parsing." />
-  <meta property="og:image" content="https://mananjp.github.io/assets/og-image.png" />
+  <meta property="og:description" content="A2A Firewall is a standalone, open-source inter-agent governance mesh intercepting and validating agent-to-agent messages with rate limiting, schema verification, and Groq LLM semantic parsing." />
+  <meta property="og:image" content="https://mananjp.github.io/blog/A2A_diagram.png" />
   <meta property="og:site_name" content="Manan Panchal Blog" />
   <meta property="article:published_time" content="2026-08-30T00:00:00+05:30" />
   <meta property="article:author" content="Manan Panchal" />
@@ -31,8 +31,8 @@
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Designing an Agent Firewall: Rate Limits, Schema Verification, and LLM Semantic Parsing" />
-  <meta name="twitter:description" content="Multi-agent systems need governance layers. A2A Firewall intercepts agent-to-agent communications with a permissions mesh — here's the architecture behind it." />
-  <meta name="twitter:image" content="https://mananjp.github.io/assets/og-image.png" />
+  <meta name="twitter:description" content="A2A Firewall intercepts agent-to-agent communications with a permissions mesh — rate limiting, schema verification, and LLM semantic parsing." />
+  <meta name="twitter:image" content="https://mananjp.github.io/blog/A2A_diagram.png" />
 
   <!-- Structured Data (JSON-LD) -->
   <script type="application/ld+json">
@@ -40,7 +40,8 @@
     "@context": "https://schema.org",
     "@type": "BlogPosting",
     "headline": "Designing an Agent Firewall: Rate Limits, Schema Verification, and LLM Semantic Parsing",
-    "description": "Multi-agent systems need governance layers. A2A Firewall intercepts agent-to-agent communications with rate limiting, schema verification, a permissions matrix, and Groq LLM semantic parsing.",
+    "description": "A2A Firewall is a standalone, open-source inter-agent governance mesh intercepting and validating agent-to-agent messages with rate limiting, schema verification, and Groq LLM semantic parsing.",
+    "image": "https://mananjp.github.io/blog/A2A_diagram.png",
     "datePublished": "2026-08-30",
     "dateModified": "2026-08-30",
     "author": {
@@ -56,6 +57,9 @@
       "@type": "WebPage",
       "@id": "https://mananjp.github.io/blog/designing-an-agent-firewall.html"
     },
+    "sameAs": [
+      "https://medium.com/@mananjpanchal11/c51d27ef6883"
+    ],
     "keywords": ["Multi-Agent Systems", "Agent Firewall", "A2A Firewall", "LLM Security", "Schema Verification", "Rate Limiting", "Semantic Parsing", "Groq"],
     "wordCount": 950,
     "timeRequired": "PT6M"
@@ -98,10 +102,26 @@
         </div>
       </header>
 
+      <!-- Medium Callout -->
+      <div class="blog-medium-callout">
+        <span class="blog-medium-callout-text">Also published on Medium</span>
+        <a href="https://medium.com/@mananjpanchal11/c51d27ef6883" target="_blank" rel="noopener noreferrer" class="blog-medium-btn">
+          <svg width="16" height="16" viewBox="0 0 1043.63 592.71" fill="currentColor"><path d="M588.67 296.36c0 163.67-131.78 296.35-294.33 296.35S0 460.03 0 296.36 131.78 0 294.34 0s294.33 132.69 294.33 296.36M911.56 296.36c0 154.06-65.89 279-147.17 279s-147.17-124.94-147.17-279 65.88-279 147.16-279 147.17 124.9 147.17 279M1043.63 296.36c0 138-23.17 249.94-51.76 249.94s-51.75-111.91-51.75-249.94 23.17-249.94 51.75-249.94 51.76 111.9 51.76 249.94"/></svg>
+          Read on Medium &rarr;
+        </a>
+      </div>
+
       <div class="blog-post-body" itemprop="articleBody">
+        <p>A2A Firewall is a standalone, open-source inter-agent governance mesh — not a feature bolted onto another product. It intercepts, validates, and traces every agent-to-agent message in a multi-agent system, the same way a network firewall inspects host-to-host traffic. This post is the whole project, not a slice of it: the architecture below is the entire scope of what exists today.</p>
+
         <p>Single-agent failure is a known problem with known mitigations — retries, guardrails, human review. Multi-agent failure is different in kind, not just degree, because the failure mode usually isn't any one agent misbehaving. It's agents trusting each other's messages by default, the same way early internal networks trusted anything already inside the perimeter.</p>
 
         <p>That's the problem A2A Firewall is built to answer: treat agent-to-agent traffic the way a real network treats host-to-host traffic — something to inspect, rate-limit, and authorize, not something to assume is safe just because it originated inside the system.</p>
+
+        <figure class="blog-post-figure">
+          <img src="A2A_diagram.png" alt="A2A Firewall Architecture Diagram showing Runtime Enforcement, Security Governance, Clients, and Operational Database" class="blog-post-img" loading="lazy" />
+          <figcaption>A2A Firewall Architecture: Inter-agent governance mesh intercepting and inspecting inter-agent communication</figcaption>
+        </figure>
 
         <h2>What actually goes wrong in multi-agent setups</h2>
 
@@ -138,7 +158,22 @@
 
         <p>A2A Firewall governs traffic between agents that are already participating in the mesh. It doesn't solve the harder problem of an agent that's compromised at the model level and generates messages that are schema-valid, permission-valid, <em>and</em> semantically plausible for its role — a well-disguised insider, in network terms. That's a different, harder problem, closer to anomaly detection on behavior over time than to message-level inspection. I'd rather say that clearly than let the firewall framing imply more coverage than it has.</p>
 
-        <p>The live demo and source are linked from the <a href="../index.html#projects">project card on the homepage</a> — feedback on where the permissions matrix should sit between static and adaptive is genuinely welcome.</p>
+        <!-- Project Links Box -->
+        <div class="blog-action-box">
+          <h4>Project Links &amp; Resources</h4>
+          <div class="blog-action-links">
+            <a href="https://github.com/mananjp/a2a-firewall" target="_blank" rel="noopener noreferrer" class="blog-action-btn accent">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+              GitHub Repository
+            </a>
+            <a href="https://medium.com/@mananjpanchal11/c51d27ef6883" target="_blank" rel="noopener noreferrer" class="blog-action-btn">
+              <svg width="14" height="14" viewBox="0 0 1043.63 592.71" fill="currentColor"><path d="M588.67 296.36c0 163.67-131.78 296.35-294.33 296.35S0 460.03 0 296.36 131.78 0 294.34 0s294.33 132.69 294.33 296.36M911.56 296.36c0 154.06-65.89 279-147.17 279s-147.17-124.94-147.17-279 65.88-279 147.16-279 147.17 124.9 147.17 279M1043.63 296.36c0 138-23.17 249.94-51.76 249.94s-51.75-111.91-51.75-249.94 23.17-249.94 51.75-249.94 51.76 111.9 51.76 249.94"/></svg>
+              Read on Medium
+            </a>
+          </div>
+        </div>
+
+        <p style="font-size:0.9rem; color:rgba(255,255,255,0.5); font-style:italic;">This is early &mdash; the repo currently has open issues on exactly the kind of edge cases described above, including where the permissions matrix should sit between static and adaptive. If you're building multi-agent systems and have hit similar failure modes, feel free to open an issue on GitHub.</p>
       </div>
 
       <footer class="blog-post-footer">
